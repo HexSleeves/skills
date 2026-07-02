@@ -30,7 +30,7 @@ npx skills add HexSleeves/skills -g
 
 ## Structure
 
-```
+```bash
 skills/
 ├── <skill-name>/
 │   └── SKILL.md      # YAML frontmatter (name, description) + instructions
@@ -53,7 +53,7 @@ description: Brief explanation of what this skill does and when to use it
 Instructions for the agent to follow when this skill is activated.
 ```
 
-3. Push to GitHub — `npx skills add HexSleeves/skills` will auto-discover it.
+1. Push to GitHub — `npx skills add HexSleeves/skills` will auto-discover it.
 
 ## License
 
