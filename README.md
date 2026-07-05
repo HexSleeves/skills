@@ -41,6 +41,7 @@ npx skills add HexSleeves/skills -g
 - **grill-with-docs** — Same relentless interview, while producing ADRs and a glossary along the way.
 - **improve** — Read-only senior-advisor survey of a codebase that produces prioritized, self-contained implementation plans for other agents to execute.
 - **teach** — Teach the user a new skill or concept within the current workspace.
+- **sdd-html** — Run the Liatrio Spec-Driven Development workflow with HTML-formatted artifacts (spec, tasks, audit, proofs); explicitly invoked only.
 
 ### Execution & delegation
 
@@ -66,13 +67,16 @@ npx skills add HexSleeves/skills -g
 
 - **gstack-design-shotgun** — Generate multiple AI design variants, open a comparison board, and collect structured feedback.
 
+### Tooling & docs
+
+- **vhs** — Record terminal sessions as GIF/MP4/WebM with VHS (Charm.sh): tape-file syntax, recording patterns, the Windows/WSL shell gotcha, and TUI recording.
+
 ### Meta & skill authoring
 
 - **staff-using-senior-staff-engineer** — Establishes how to find and use skills at the start of a conversation.
 - **staff-writing-skills** / **staff-skill-academy** — Create, edit, and verify skills before deployment.
 - **find-skills** — Help discover and install skills that provide a requested capability.
 - **handoff** — Compact the current conversation into a handoff document for another agent.
-- **example-skill** — A starter skill demonstrating the `SKILL.md` format.
 
 ## Structure
 
