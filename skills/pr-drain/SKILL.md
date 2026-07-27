@@ -9,7 +9,7 @@ description: Use when the user explicitly invokes pr-drain, asks to drain pull r
 
 Carry every selected pull request to a verified terminal state: merged, closed, or blocked with evidence.
 
-Mutation requires explicit drain or repair-and-merge intent. Review-only requests stay read-only. Without PR numbers, select all open PRs; with numbers, change only those and report the others.
+Mutation requires explicit `pr-drain`, drain, or repair-and-merge intent. Review-only requests stay read-only. Without PR numbers, select all open PRs; with numbers, change only those and report the others.
 
 Drain intent authorizes ordinary repairs, pushes, squash merges, and safe remote-branch deletion. Owner-approval authority must be explicit and separate. Neither authorizes protection bypass, force-push, or ambiguous product, security, migration, or production-infrastructure changes.
 
@@ -88,7 +88,7 @@ If approval is the only unmet gate and the user explicitly authorized owner appr
 
 1. Verify live `viewerPermission: ADMIN`, an authenticated login different from the PR author, and the exact verified head.
 2. Only after every non-review gate passes, submit `gh pr review "$pr" --repo "$repo" --approve`.
-3. Confirm an `APPROVED` review by that login, its `commitOid` equals the verified head, and GitHub now reports an approved review decision.
+3. Confirm an `APPROVED` review by that login, its non-null `submittedAt`, its `commitOid` equals the verified head, and GitHub now reports an approved review decision.
 4. Refresh every gate. A changed head discards approval evidence and requires complete reinspection, reverification, and a new review under the same authorization.
 
 Never use administrative merge bypass. If any prerequisite or confirmation fails, block.
@@ -113,7 +113,7 @@ gh pr merge "$pr" --repo "$repo" --match-head-commit "$verified_sha"
 
 Poll until GitHub reports `MERGED`; enqueue success is not completion. If ejected, reverify or block. Then re-resolve the writable non-default head, confirm its SHA and no open PR uses it, and delete only that remote ref.
 
-Record mergedAt and mergeCommit only after `MERGED`. Compare the complete worktree snapshot and report any difference.
+Record mergedAt and mergeCommit only after `MERGED`. Compare the complete worktree snapshot; block and report any difference.
 
 ### 5. Continue and reconcile
 
@@ -152,4 +152,4 @@ Return only after final reconciliation:
 PR | Result | Verified head | Evidence | Merge SHA / Blocker
 ~~~
 
-Include failed repairs, preserved worktrees, and owner-approval login, `commitOid`, and submission time. Never claim a drain from a stale count.
+Include failed repairs, preserved worktrees, and owner-approval login, state, `commitOid`, and submission time. Never claim a drain from a stale count.
