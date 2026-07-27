@@ -7,7 +7,7 @@ description: Use when the user explicitly invokes pr-drain, asks to drain pull r
 
 ## Contract
 
-For explicit drain or repair-and-merge intent, carry every selected pull request to a verified terminal state: merged, closed, or blocked with evidence.
+Carry every selected pull request to a verified terminal state: merged, closed, or blocked with evidence.
 
 Mutation requires explicit `pr-drain`, drain, or repair-and-merge intent. A review-only request stays read-only and never authorizes repair, push, merge, or deletion. With no PR numbers, select every open PR in the resolved repository. With numbers, change only those PRs and report other open PRs.
 
@@ -15,14 +15,14 @@ Valid mutation intent authorizes ordinary repairs, pushes, squash merges, and sa
 
 ## Invariants
 
-- Treat GitHub live state as truth. Do not trust cached UI counts or prior narration.
+- Treat GitHub live state as truth; distrust cached counts and prior narration.
 - Preserve the user's existing worktree exactly. Make repairs in temporary worktrees.
 - Review the complete diff. Never merge while any review thread remains unresolved.
 - Tie checks, approvals, and review evidence to the exact current head SHA.
 - Use gh pr merge --match-head-commit with the verified SHA.
 - Never merge with required checks pending or failing.
 - Never bypass rulesets, merge queues, required reviews, or branch protection.
-- Agent-authored tests are supporting evidence, not sufficient independent evidence.
+- Agent-authored tests cannot independently prove correctness.
 - Confirm every mutation from GitHub before advancing.
 - One blocked PR does not stop independent PRs.
 - Stop retrying after one transient retry or two repair attempts for the same deterministic failure.
@@ -39,7 +39,7 @@ Valid mutation intent authorizes ordinary repairs, pushes, squash merges, and sa
 6. Query all review-thread pages through the GitHub connector or gh api graphql; a flat comment list cannot prove every thread is resolved.
 7. Order stacked PRs after their selected parents. Treat other PRs as independent until evidence shows a dependency.
 
-Prefer a purpose-built GitHub connector for structured reads when available. Use gh for live head checks, GraphQL pagination, Actions logs, checkout/push, check watching, and merge operations.
+Prefer a GitHub connector for structured reads. Use gh for live head checks, GraphQL pagination, Actions logs, checkout/push, check watching, and merges.
 
 ### 2. Inspect and review
 
@@ -84,6 +84,8 @@ Immediately before merge, refresh:
 
 Any changed head invalidates earlier review and verification. Reinspect the delta and rerun applicable checks.
 
+Merge only after every applicable refreshed gate passes.
+
 For an immediate merge, use:
 
 ~~~bash
@@ -91,6 +93,8 @@ gh pr merge "$pr" --repo "$repo" --squash --delete-branch --match-head-commit "$
 ~~~
 
 Keep explicit `--repo`: in gh 2.96 it prevents `--delete-branch` from changing or deleting a local branch while allowing remote deletion.
+
+Outside queues, squash by default. If unavailable, replace only `--squash` with `--merge` or `--rebase` when repository instructions explicitly permit it; otherwise block.
 
 For a required merge queue, use no delete or strategy flag:
 
