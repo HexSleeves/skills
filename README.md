@@ -61,6 +61,7 @@ npx skills add HexSleeves/skills -g
 - **staff-verification-before-completion** / **staff-evidence-verification** — Run verification commands and confirm output before claiming work is complete.
 - **staff-requesting-code-review** / **staff-review-requesting** — Verify work meets requirements when completing tasks or before merging.
 - **staff-receiving-code-review** / **staff-review-reception** — Apply technical rigor to review feedback instead of blindly implementing it.
+- **pr-drain** — Review, repair, verify, and safely merge a GitHub pull-request queue through final reconciliation.
 - **staff-finishing-a-development-branch** / **staff-release-engineering** — Decide how to integrate completed work (merge, PR, or cleanup).
 
 ### Design
