@@ -84,7 +84,7 @@ Immediately before merge, refresh:
 
 Changed heads invalidate review and verification; reinspect the delta and rerun applicable checks.
 
-If approval is the only unmet gate and the user explicitly authorized owner approval for this run:
+If approval is the only unmet gate and the user explicitly authorized owner approval for this PR or the selected run:
 
 1. Verify live `viewerPermission: ADMIN`, an authenticated login different from the PR author, and the exact verified head.
 2. Only after every non-review gate passes, submit `gh pr review "$pr" --repo "$repo" --approve`.
@@ -111,7 +111,7 @@ For a required merge queue, use no delete or strategy flag:
 gh pr merge "$pr" --repo "$repo" --match-head-commit "$verified_sha"
 ~~~
 
-Poll until GitHub reports `MERGED`; enqueue success is not completion. If ejected, reverify or block. Then re-resolve the writable non-default head, confirm its SHA and no open PR uses it, and delete only that remote ref.
+Poll until GitHub reports `MERGED`; enqueue success is not completion. If ejected, reverify or block. Then re-resolve the writable non-default head, confirm it still names the verified SHA and no open PR uses it, and delete only that remote ref.
 
 Record mergedAt and mergeCommit only after `MERGED`. Compare the complete worktree snapshot; block and report any difference.
 
