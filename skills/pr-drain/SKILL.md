@@ -17,7 +17,7 @@ Invocation authorizes ordinary branch repairs, pushes, squash merges, and branch
 
 - Treat GitHub live state as truth. Do not trust cached UI counts or prior narration.
 - Preserve the user's existing worktree. Make repairs in temporary worktrees.
-- Review the complete diff and unresolved review threads.
+- Review the complete diff. Never merge while any review thread remains unresolved.
 - Tie checks, approvals, and review evidence to the exact current head SHA.
 - Use gh pr merge --match-head-commit with the verified SHA.
 - Never merge with required checks pending or failing.
@@ -64,7 +64,8 @@ For an ordinary repair:
 4. Run repository-native validation in the temporary worktree.
 5. Resolve the actual writable head repository and branch before pushing. Block fork PRs when the authenticated user cannot safely update their head.
 6. Push without force and refresh headRefOid.
-7. Wait for required checks on that new SHA with gh pr checks --required --watch --fail-fast when supported.
+
+For every selected PR, including an unchanged head, record headRefOid and wait for required checks on that SHA with gh pr checks --required --watch --fail-fast when supported. After the watcher exits, refresh headRefOid; if it changed, discard the result and repeat on the new head.
 
 Retry a transient GitHub or CI failure once without changing code. Permit at most two repair attempts for one deterministic failure. A repeated or materially different failure becomes a blocker.
 
