@@ -1,22 +1,22 @@
 ---
 name: pr-drain
-description: Use when the user asks to review, repair, merge, or drain multiple GitHub pull requests in a repository, especially when failures must be fixed before the queue is finished.
+description: Use when the user explicitly invokes pr-drain, asks to drain pull requests, or requests repair-and-merge work across GitHub pull requests.
 ---
 
 # PR Drain
 
 ## Contract
 
-Carry every selected pull request to a verified terminal state: merged, closed, or blocked with evidence. A summary is not completion.
+For explicit drain or repair-and-merge intent, carry every selected pull request to a verified terminal state: merged, closed, or blocked with evidence.
 
-Run only after the user explicitly asks to review or merge PRs. With no PR numbers, select every open PR in the repository resolved from the working directory. With numbers, process only those PRs and report other open PRs without changing them.
+Mutation requires explicit `pr-drain`, drain, or repair-and-merge intent. A review-only request stays read-only and never authorizes repair, push, merge, or deletion. With no PR numbers, select every open PR in the resolved repository. With numbers, change only those PRs and report other open PRs.
 
-Invocation authorizes ordinary branch repairs, pushes, squash merges, and branch deletion. It never authorizes bypassing protection, force-pushing, choosing ambiguous product intent, or approving unclear security, migration, or production-infrastructure changes.
+Valid mutation intent authorizes ordinary repairs, pushes, squash merges, and safe remote-branch deletion. It never authorizes protection bypass, force-push, ambiguous product intent, or unclear security, migration, or production-infrastructure changes.
 
 ## Invariants
 
 - Treat GitHub live state as truth. Do not trust cached UI counts or prior narration.
-- Preserve the user's existing worktree. Make repairs in temporary worktrees.
+- Preserve the user's existing worktree exactly. Make repairs in temporary worktrees.
 - Review the complete diff. Never merge while any review thread remains unresolved.
 - Tie checks, approvals, and review evidence to the exact current head SHA.
 - Use gh pr merge --match-head-commit with the verified SHA.
@@ -34,7 +34,7 @@ Invocation authorizes ordinary branch repairs, pushes, squash merges, and branch
 1. Run gh auth status.
 2. Resolve the repository with gh repo view --json nameWithOwner.
 3. Read repository instructions, including AGENTS.md and equivalents.
-4. Record git status without changing the existing worktree.
+4. Snapshot the existing worktree's branch, HEAD, status, staged and unstaged diffs, and untracked-file hashes without changing it.
 5. Fetch selected PRs from live GitHub state. Include number, URL, draft state, base and head branches, headRefOid, mergeable, mergeStateStatus, reviewDecision, and statusCheckRollup.
 6. Query all review-thread pages through the GitHub connector or gh api graphql; a flat comment list cannot prove every thread is resolved.
 7. Order stacked PRs after their selected parents. Treat other PRs as independent until evidence shows a dependency.
@@ -50,7 +50,7 @@ For each PR:
 3. Inspect unresolved threads and requested changes.
 4. Review correctness, regressions, security, compatibility, tests, and repository policy.
 5. Classify security-sensitive changes, destructive or unclear migrations, production infrastructure, and ambiguous product behavior as blocked unless intent is already explicit in repository evidence.
-6. Treat Graphify output, when already installed and fresh, only as optional impact-analysis evidence. Never install it or use it as a merge gate.
+6. Read only preexisting fresh Graphify output as advisory evidence. Never generate or commit it, install Graphify, enable hooks, start services, or use it as a gate.
 
 ### 3. Verify or repair
 
@@ -65,7 +65,7 @@ For an ordinary repair:
 5. Resolve the actual writable head repository and branch before pushing. Block fork PRs when the authenticated user cannot safely update their head.
 6. Push without force and refresh headRefOid.
 
-For every selected PR, including an unchanged head, record headRefOid and wait for required checks on that SHA with gh pr checks --required --watch --fail-fast when supported. After the watcher exits, refresh headRefOid; if it changed, discard the result and repeat on the new head.
+For every selected PR, including an unchanged head, record headRefOid and wait for required checks on that SHA with gh pr checks --required --watch --fail-fast when supported. A zero-required-check result passes only after live rulesets and branch protection prove no required context is configured; configured-but-missing, inaccessible, or ambiguous policy blocks. Refresh headRefOid after either result; if changed, discard it and repeat.
 
 Retry a transient GitHub or CI failure once without changing code. Permit at most two repair attempts for one deterministic failure. A repeated or materially different failure becomes a blocker.
 
@@ -84,15 +84,23 @@ Immediately before merge, refresh:
 
 Any changed head invalidates earlier review and verification. Reinspect the delta and rerun applicable checks.
 
-Merge only when every applicable gate passes. Use:
+For an immediate merge, use:
 
 ~~~bash
-gh pr merge "$pr" --squash --delete-branch --match-head-commit "$verified_sha"
+gh pr merge "$pr" --repo "$repo" --squash --delete-branch --match-head-commit "$verified_sha"
 ~~~
 
-If repository policy requires a merge queue, enqueue without bypassing it and wait for the terminal result. If squash is unavailable, follow an explicit repository instruction for another allowed strategy or block.
+Keep explicit `--repo`: in gh 2.96 it prevents `--delete-branch` from changing or deleting a local branch while allowing remote deletion.
 
-After the command, fetch the PR again. Record mergedAt and mergeCommit only when GitHub reports MERGED. Do not call queued, auto-merge-enabled, or command-success states merged.
+For a required merge queue, use no delete or strategy flag:
+
+~~~bash
+gh pr merge "$pr" --repo "$repo" --match-head-commit "$verified_sha"
+~~~
+
+Poll live PR and queue state until GitHub reports `MERGED`; enqueue or auto-merge success is not completion. If ejected, reverify or block. Only after `MERGED`, re-resolve the writable non-default head ref, confirm it still names the verified SHA and no open PR uses it, then delete that remote ref; never delete a local branch.
+
+After either path, record mergedAt and mergeCommit only when GitHub reports `MERGED`. Compare the user's complete worktree snapshot to the initial snapshot and block/report any difference.
 
 ### 5. Continue and reconcile
 
@@ -108,7 +116,7 @@ Fetch the live open-PR list at the end. An all-PR run reports zero remaining ope
 
 ## Resume
 
-Reconstruct a restarted run from live state: skip already merged PRs while recording their merge SHAs, report externally closed PRs, and process open PRs from their current remote heads. Reuse checks only when GitHub attaches them to the same head SHA. Resume pushed repairs from the remote branch and never assume an unpushed local repair occurred.
+Reconstruct a restarted run from live state: skip merged PRs while recording merge SHAs, report externally closed PRs, and process open PRs from their remote heads. Reuse checks only on the same head SHA. Resume pushed repairs, but count durable repair commits and check reruns for the active failure against the original budgets. If prior attempts cannot be established, grant no fresh automatic budget: block and request direction. Never assume an unpushed repair occurred.
 
 ## Failure Policy
 
@@ -131,4 +139,4 @@ Return only after final reconciliation:
 PR | Result | Verified head | Evidence | Merge SHA / Blocker
 ~~~
 
-Include failed repair attempts and preserved worktree paths. Never claim the queue is drained from a stale PR count.
+Include prior and current failed repair attempts and preserved worktree paths. Never claim the queue is drained from a stale PR count.
