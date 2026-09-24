@@ -1,7 +1,6 @@
 ---
 name: no-comments
 description: "Review scoped comments, fix accepted findings, and offer enforceable encodings for claimed constraints."
-disable-model-invocation: true
 ---
 
 # No comments
