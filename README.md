@@ -34,34 +34,25 @@ npx skills add HexSleeves/skills -g
 
 ### Planning & discovery
 
-- **domain-modeling** — Build and sharpen a project's domain model: codebase terminology, CONTEXT.md, ADRs, and glossary.
-- **grill-me** — A relentless interview to sharpen a plan or design.
 - **grilling** — Stress-test a plan before building via relentless questioning, worked as design-tree rounds.
-- **grill-with-docs** — Same relentless interview, while producing ADRs and a glossary along the way.
 - **improve** — Read-only senior-advisor survey of a codebase that produces prioritized, self-contained implementation plans for other agents to execute.
-- **teach** — Teach the user a new skill or concept within the current workspace.
 
 ### Execution & review
 
 - **tdd** — Test-driven development: build features or fix bugs test-first (red-green-refactor).
-- **pr-drain** — Review, repair, verify, and safely merge a GitHub pull-request queue through final reconciliation.
 - **no-comments**: Review scoped code comments, fix accepted findings, and offer enforceable encodings for claimed constraints.
 - **codex-delegation**: Hand a bounded implementation, review, or second opinion to Codex with a precise handoff contract.
 
 ### Design
 
-- **design-shotgun** — Generate multiple AI design variants, open a comparison board, and collect structured feedback.
-- **show-me**: Explain the current topic visually with concise diagrams, code-shape sketches, and focused HTML artifacts.
 - **lavish**: Build a local HTML review surface for annotating a visual artifact via lavish-axi.
 
 ### Tooling & docs
 
 - **stop-slop**: Remove common AI writing habits from prose while keeping facts, quotations, and the author's voice.
-- **vhs** — Record terminal sessions as GIF/MP4/WebM with VHS (Charm.sh): tape-file syntax, recording patterns, the Windows/WSL shell gotcha, and TUI recording.
 
 ### Meta & skill authoring
 
-- **find-skills** — Help discover and install skills that provide a requested capability.
 - **handoff** — Compact the current conversation into a handoff document for another agent.
 
 ## Structure

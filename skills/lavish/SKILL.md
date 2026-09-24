@@ -12,8 +12,7 @@ metadata:
 # Lavish Editor
 
 Use Lavish when the user wants an HTML artifact they can annotate and return through an
-interactive review loop. For a lightweight visual explanation without annotations, use
-`show-me` instead. Ordinary local review does not require publishing or sharing the artifact.
+interactive review loop. Ordinary local review does not require publishing or sharing the artifact.
 
 ## Request
 
