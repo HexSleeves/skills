@@ -42,6 +42,8 @@ npx skills add HexSleeves/skills -g
 - **tdd** — Test-driven development: build features or fix bugs test-first (red-green-refactor).
 - **no-comments**: Review scoped code comments, fix accepted findings, and offer enforceable encodings for claimed constraints.
 - **codex-delegation**: Hand a bounded implementation, review, or second opinion to Codex with a precise handoff contract.
+- **code-review**: Review changes since a fixed point against repo standards and the originating spec. Fork of mattpocock/skills (MIT).
+- **why**: Evidence-backed answers to "why does X work this way" from source control, issues, docs, and chat. Fork of cursor/plugins pstack (MIT).
 
 ### Design
 
@@ -49,6 +51,7 @@ npx skills add HexSleeves/skills -g
 
 ### Tooling & docs
 
+- **gh-axi**: Operate GitHub through the gh-axi CLI. Fork of kunchenguid/gh-axi (MIT).
 - **stop-slop**: Remove common AI writing habits from prose while keeping facts, quotations, and the author's voice.
 
 ### Meta & skill authoring
