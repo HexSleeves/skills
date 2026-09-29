@@ -20,6 +20,10 @@ side effect of this check.
 
 ## Every call
 
+The snippets below are bash. Run them through `bash` (a script or `bash -c`) when the harness
+shell is zsh: zsh treats `status` as a read-only variable and does not word-split an unquoted
+variable, so `MCP_ARGS` built from a space-joined list becomes one invalid key.
+
 1. Confirm that the user authorized this delegation, its scope, and any requested write or
    network access.
 2. Put the prompt in a file and pass it on stdin with `- <"$FILE"`. An argv prompt can also
@@ -67,9 +71,30 @@ before starting the process, and apply the same overrides on resume.
 
 Build a Bash `MCP_ARGS` array from the locally configured names. For each unneeded integration,
 append `-c 'mcp_servers.<name>.enabled=false'`, replacing `<name>` with its supported plain key
-name. Do not quote individual dotted segments: `mcp_servers."<name>".enabled=false` failed
+name. Read the names one per line so each becomes its own element:
+
+```bash
+mapfile -t UNNEEDED <"$RUN/unneeded-mcp.txt"
+MCP_ARGS=()
+for name in "${UNNEEDED[@]}"; do MCP_ARGS+=(-c "mcp_servers.$name.enabled=false"); done
+```
+ Do not quote individual dotted segments: `mcp_servers."<name>".enabled=false` failed
 with `invalid transport` on the verified CLI. If a name cannot use the supported syntax, stop
 and verify a supported override before launching the review.
+
+Servers that a plugin provides cannot be disabled this way: on codex-cli 0.155.1 and 0.158.0 the
+per-call override failed with `invalid transport`, and `-c plugins."<id>".enabled=false` was
+accepted but left those servers enabled. The tested fallback, used only with the user's
+approval, skips the user config and pins the model and effort on the command line. The flag
+goes after `exec`:
+
+```bash
+"$CODEX" exec --ignore-user-config -m "<model>" -c model_reasoning_effort="<effort>" \
+  -s read-only --skip-git-repo-check --json -o "$RUN/out-r1.txt" - <"$RUN/prompt-r1.md" \
+  >"$RUN/stream-r1.jsonl" 2>"$RUN/err-r1.log"
+```
+
+Check first that authentication still works without the user config.
 
 Verify the effective configuration with `"$CODEX" "${MCP_ARGS[@]}" mcp list --json` (or
 `mcp get <name> --json`), parsing the result locally to check disabled status without printing
@@ -89,7 +114,7 @@ snap r1
 "$CODEX" "${MCP_ARGS[@]}" exec -s read-only --skip-git-repo-check --json \
   -o "$RUN/out-r1.txt" - <"$RUN/prompt-r1.md" \
   >"$RUN/stream-r1.jsonl" 2>"$RUN/err-r1.log"
-status=$?
+rc=$?
 snap r1 post
 THREAD_ID=$(grep -m1 '"type":"thread.started"' "$RUN/stream-r1.jsonl" \
   | sed 's/.*"thread_id":"\([^"]*\)".*/\1/')
@@ -105,7 +130,7 @@ snap rN
 "$CODEX" "${MCP_ARGS[@]}" exec resume "$THREAD_ID" -c sandbox_mode="read-only" \
   --skip-git-repo-check --json -o "$RUN/out-rN.txt" \
   - <"$RUN/prompt-rN.md" >"$RUN/stream-rN.jsonl" 2>"$RUN/err-rN.log"
-status=$?
+rc=$?
 snap rN post
 ```
 
@@ -124,7 +149,7 @@ snap build
 "$CODEX" "${MCP_ARGS[@]}" exec --sandbox workspace-write --approve-for-me \
   --skip-git-repo-check --json -o "$RUN/build-out.txt" \
   - <"$RUN/spec.md" >"$RUN/stream-build.jsonl" 2>"$RUN/err-build.log"
-status=$?
+rc=$?
 snap build post
 BUILD_THREAD=$(grep -m1 '"type":"thread.started"' "$RUN/stream-build.jsonl" \
   | sed 's/.*"thread_id":"\([^"]*\)".*/\1/')
@@ -161,7 +186,7 @@ snap fixN
   "${RESUME_ROOT_ARGS[@]}" \
   --skip-git-repo-check --json -o "$RUN/fix-outN.txt" \
   - <"$RUN/fixN.md" >"$RUN/stream-fixN.jsonl" 2>"$RUN/err-fixN.log"
-status=$?
+rc=$?
 snap fixN post
 ```
 
