@@ -39,7 +39,6 @@ npx skills add HexSleeves/skills -g
 
 ### Execution & review
 
-- **tdd** — Test-driven development: build features or fix bugs test-first (red-green-refactor).
 - **no-comments**: Review scoped code comments, fix accepted findings, and offer enforceable encodings for claimed constraints.
 - **codex-delegation**: Hand a bounded implementation, review, or second opinion to Codex with a precise handoff contract.
 - **code-review**: Review changes since a fixed point against repo standards and the originating spec. Fork of mattpocock/skills (MIT).
