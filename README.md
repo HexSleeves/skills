@@ -34,24 +34,18 @@ npx skills add HexSleeves/skills -g
 
 ### Planning & discovery
 
-- **grilling** — Stress-test a plan before building via relentless questioning, worked as design-tree rounds.
+- **grilling**: Stress-test a plan before building via relentless questioning, one design-tree frontier question at a time. Rebuilt from mattpocock/skills (MIT).
+- **grill-me**: User-invoked only shortcut that starts a `grilling` session; the agent never fires it on its own. From mattpocock/skills (MIT).
 - **improve** — Read-only senior-advisor survey of a codebase that produces prioritized, self-contained implementation plans for other agents to execute.
 
 ### Execution & review
 
 - **no-comments**: Review scoped code comments, fix accepted findings, and offer enforceable encodings for claimed constraints.
-- **codex-delegation**: Hand a bounded implementation, review, or second opinion to Codex with a precise handoff contract.
-- **code-review**: Review changes since a fixed point against repo standards and the originating spec. Fork of mattpocock/skills (MIT).
 - **why**: Evidence-backed answers to "why does X work this way" from source control, issues, docs, and chat. Fork of cursor/plugins pstack (MIT).
-
-### Design
-
-- **lavish**: Build a local HTML review surface for annotating a visual artifact via lavish-axi.
 
 ### Tooling & docs
 
 - **gh-axi**: Operate GitHub through the gh-axi CLI. Fork of kunchenguid/gh-axi (MIT).
-- **stop-slop**: Remove common AI writing habits from prose while keeping facts, quotations, and the author's voice.
 
 ### Meta & skill authoring
 

@@ -1,28 +1,38 @@
 ---
 name: grilling
-description: Grill the user relentlessly about a plan, decision, or idea. Use when the user wants to stress-test their thinking, or uses any 'grill' trigger phrases.
+description: Use when the user wants a plan, decision, or idea stress-tested before acting on it, or uses any 'grill' trigger phrase.
 ---
 
-Interview the user relentlessly until you reach a shared understanding. Map this as a **design tree**: every decision branches into the decisions that hang off it.
+Interview the user relentlessly about every aspect of the subject until you reach a shared understanding. Model it as a **design tree**: every decision branches into the decisions that hang off it.
 
-Work the tree in **rounds**. The **frontier** is every decision whose prerequisites are already settled: the questions you can ask _now_ without guessing at answers you haven't heard yet. Ask the whole frontier in one round: number each question and give your recommended answer. Then wait for the user's answers before the next round.
+## The frontier
 
-Format a round like so:
+The **frontier** is every open decision whose prerequisites are settled: the questions you can ask now without guessing at answers you haven't heard. Each answer reshapes the tree. It settles a node, unblocks the decisions below it, and can reopen an earlier branch it contradicts. Recompute the frontier after every answer; it is never a pre-written list.
+
+## Asking
+
+Ask **one question at a time**, then wait for the answer. Pick the frontier decision whose answer unblocks the most of the tree. Several questions at once is bewildering.
+
+Format each question like so:
 
 ```
-❓ **Q1** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
+❓ **Q<n>** - **<question title>** (<k> more on the frontier)
 
-➡️ <your recommended answer>
+<question body, might be multiple paragraphs, including the choices>
 
----
-
-❓ **Q2** - **<question title>**: <question body, might be multiple paragraphs, including multiple choices>
-
-➡️ <your recommended answer>
+➡️ <your recommended answer, and why>
 ```
 
-Each round the user answers reshapes the tree: settled decisions push the frontier outward and unblock questions that depended on them. Recompute the frontier and ask the next round. A question whose answer depends on another question still open in this round belongs to a _later_ round, not this one.
+Word the recommendation as an answer to the question as asked, so agreeing with it means saying yes.
 
-Finding _facts_ is your job, never the user's. When a frontier question needs a fact from the environment (filesystem, tools, etc.), dispatch a sub-agent to find it; don't ask the user for anything you could look up yourself. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions downstream of it wait for the sub-agent to report; ask the rest of the frontier now. The _decisions_ are the user's: put each to them and wait.
+When the user asks for rounds, ask the whole frontier at once instead: number every question in the format above, separate them with `---`, and keep any question that depends on another one in the same round for the next round.
 
-The session is done when the frontier is empty: every branch of the design tree visited, nothing left silently assumed. Do not act on it until the user confirms you have reached a shared understanding.
+## Facts and decisions
+
+Finding _facts_ is your job. When a question needs a fact from the environment (code, files, docs, tools), look it up instead of asking; dispatch a sub-agent for anything slow. A running lookup blocks only the questions downstream of it: keep asking the rest of the frontier while it runs.
+
+The _decisions_ are the user's. Put each one to them and wait, however obvious your recommendation looks.
+
+## Done
+
+The session is done when the frontier is empty: every branch visited, nothing silently assumed. Then list the settled decisions and ask the user to confirm that list is the shared understanding. Act on it only after they confirm.

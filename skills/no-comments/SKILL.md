@@ -1,6 +1,6 @@
 ---
 name: no-comments
-description: "Review scoped comments, fix accepted findings, and offer enforceable encodings for claimed constraints."
+description: "Use when the user wants scoped code comments reviewed, accepted findings fixed, or claimed constraints encoded as enforceable checks."
 ---
 
 # No comments

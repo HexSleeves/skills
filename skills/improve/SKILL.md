@@ -1,6 +1,6 @@
 ---
 name: improve
-description: Survey a codebase as a senior advisor and produce prioritized, self-contained implementation plans for a separate executor. Remain read-only on source code. Use for audits, improvement opportunities, roadmap advice, or implementation handoffs.
+description: Use when the user wants an audit, improvement opportunities, roadmap advice, or an implementation handoff from a read-only senior-advisor survey of a codebase.
 license: MIT
 metadata:
   author: shadcn
