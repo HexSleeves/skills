@@ -19,6 +19,9 @@ Check available capabilities before naming an agent or skill.
 - If `Comment Sicko` is available, ask it to review the exact scope.
 - If it is unavailable, perform a concise direct review of the same scope. The review must
   not fail because a named subagent is missing.
+- If you wrote the diff in this context, the review runs in a fresh one: Comment Sicko, or
+  another fresh agent when it is unavailable. An author re-reads intent, so a self-review
+  does not count.
 - If `/how`, `/why`, `/architect`, or a `principle-*` skill is unavailable, inspect the
   relevant symbol and surrounding code directly. Record the fallback instead of widening
   scope or inventing a capability.
