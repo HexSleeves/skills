@@ -40,8 +40,14 @@ npx skills add HexSleeves/skills -g
 
 ### Execution & review
 
+- **code-review**: Review a branch against the repo's standards and the originating spec, once per branch before the PR. Fork of mattpocock/skills (MIT).
 - **no-comments**: Review scoped code comments, fix accepted findings, and offer enforceable encodings for claimed constraints.
+- **tdd**: Red-green loop at agreed seams, with red checked by test count, mutation for pinned behaviour, and no code without a runner. Fork of mattpocock/skills (MIT).
 - **why**: Evidence-backed answers to "why does X work this way" from source control, issues, docs, and chat. Fork of cursor/plugins pstack (MIT).
+
+### Writing
+
+- **no-ai-slop**: Edit drafts into sharper writing in the author's voice, or flag AI-slop patterns without rewriting; checks change descriptions against the diff. Fork of petergyang/no-ai-slop.
 
 ### Tooling & docs
 
@@ -50,6 +56,7 @@ npx skills add HexSleeves/skills -g
 ### Meta & skill authoring
 
 - **handoff** — Compact the current conversation into a handoff document for another agent.
+- **task-observer**: Log skill-improvement observations during work and review them into staged skill updates. Fork of rebelytics/one-skill-to-rule-them-all (CC BY 4.0).
 
 ## Structure
 
@@ -82,4 +89,4 @@ Instructions for the agent to follow when this skill is activated.
 
 ## License
 
-MIT
+MIT, except forked skills, which keep their upstream license: see the LICENSE file in the skill directory, or the upstream repo named in the catalog.
