@@ -29,7 +29,7 @@ When the user asks for rounds, ask the whole frontier at once instead: number ev
 
 ## Facts and decisions
 
-Finding _facts_ is your job. When a question needs a fact from the environment (code, files, docs, tools), look it up instead of asking; dispatch a sub-agent for anything slow. A running lookup blocks only the questions downstream of it: keep asking the rest of the frontier while it runs.
+Finding _facts_ is your job. When a question needs a fact from the environment (code, files, docs, tools), look it up instead of asking; dispatch a sub-agent for anything slow. A running lookup blocks only the questions downstream of it: keep asking the rest of the frontier while it runs. It blocks claims too: until it reports, state only what has returned, and label any inference about the unexplored system as a guess.
 
 The _decisions_ are the user's. Put each one to them and wait, however obvious your recommendation looks.
 
