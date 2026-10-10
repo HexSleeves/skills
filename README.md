@@ -41,6 +41,7 @@ npx skills add HexSleeves/skills -g
 ### Execution & review
 
 - **code-review**: Review a branch against the repo's standards and the originating spec, once per branch before the PR. Fork of mattpocock/skills (MIT).
+- **diagnosing-bugs**: Diagnosis loop for hard bugs and performance regressions, built on a tight red-capable feedback loop before any hypothesis. Fork of mattpocock/skills (MIT).
 - **no-comments**: Review scoped code comments, fix accepted findings, and offer enforceable encodings for claimed constraints.
 - **tdd**: Red-green loop at agreed seams, with red checked by test count, mutation for pinned behaviour, and no code without a runner. Fork of mattpocock/skills (MIT).
 - **why**: Evidence-backed answers to "why does X work this way" from source control, issues, docs, and chat. Fork of cursor/plugins pstack (MIT).
@@ -51,6 +52,7 @@ npx skills add HexSleeves/skills -g
 
 ### Tooling & docs
 
+- **archify**: Validated architecture, workflow, sequence, data-flow, and lifecycle diagrams as standalone HTML with inline SVG. Fork of tt-a1i/archify (MIT).
 - **gh-axi**: Operate GitHub through the gh-axi CLI. Fork of kunchenguid/gh-axi (MIT).
 
 ### Meta & skill authoring

@@ -27,12 +27,16 @@ Word the recommendation as an answer to the question as asked, so agreeing with 
 
 When the user asks for rounds, ask the whole frontier at once instead: number every question in the format above, separate them with `---`, and keep any question that depends on another one in the same round for the next round.
 
-## Facts and decisions
+## Facts, defaults and decisions
 
 Finding _facts_ is your job. When a question needs a fact from the environment (code, files, docs, tools), look it up instead of asking; dispatch a sub-agent for anything slow. A running lookup blocks only the questions downstream of it: keep asking the rest of the frontier while it runs. It blocks claims too: until it reports, state only what has returned, and label any inference about the unexplored system as a guess.
 
-The _decisions_ are the user's. Put each one to them and wait, however obvious your recommendation looks.
+_Direction decisions_ (what, for whom, which first) are the user's. Put each one to them and wait, however obvious your recommendation looks.
+
+_Defaults_ are implementation choices with a defensible default: a recommendation the user would accept unread. State each in one line, keep going, and let the user object. Before asking whether to prototype, check whether an existing artifact (a dashboard, script, or mock the work builds on) already answers the design question; if it does, that artifact is the prototype.
+
+When the plan orders work taken from a stakeholder's document, challenge the order first: state the document's central claim in one sentence and rank each slice by how directly it delivers that claim. "Unblocked" only breaks ties.
 
 ## Done
 
-The session is done when the frontier is empty: every branch visited, nothing silently assumed. Then list the settled decisions and ask the user to confirm that list is the shared understanding. Act on it only after they confirm.
+The session is done when the frontier is empty: every branch visited, nothing silently assumed. Then list the settled decisions and stated defaults and ask the user to confirm that list is the shared understanding. Act on it only after they confirm.
