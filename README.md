@@ -48,6 +48,7 @@ npx skills add HexSleeves/skills -g
 
 ### Writing
 
+- **bro**: User-invoked only; restates the last message in plain human language, with no jargon. From cursor/plugins pstack (MIT).
 - **no-ai-slop**: Edit drafts into sharper writing in the author's voice, or flag AI-slop patterns without rewriting; checks change descriptions against the diff. Fork of petergyang/no-ai-slop.
 
 ### Tooling & docs
