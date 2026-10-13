@@ -1,5 +1,5 @@
 ---
-name: diagnosing-bugs
+name: "diagnosing-bugs"
 description: Use when the user says "diagnose"/"debug this", or reports a hard bug or performance regression (something broken, throwing, failing, or slow).
 metadata:
   upstream: mattpocock/skills
@@ -14,6 +14,8 @@ When exploring the codebase, read `GLOSSARY.md` (if it exists) to get a clear me
 ## Redact
 
 This skill has you show commands, outputs and captured artifacts. **Redact every secret first**: write `<REDACTED>` in its place. Build loops against env vars, so the credential stays in the environment rather than in what you show. Captured artifacts carry auth headers: quote only the lines that carry the signal.
+
+**Redact the whole tree, and treat listings as secret-bearing by default.** A filter that scrubs one level of a config misses a secret nested deeper, and process listings show argv, which carries tokens passed as flags or headers. Redact values at every depth, and show process or config listings only through a filter that rewrites secret values wherever they appear.
 
 If the redacted output is not enough to diagnose the bug, say so and ask the user.
 
@@ -113,6 +115,8 @@ Tool preference:
 
 **Tag every debug log** with a unique prefix, e.g. `[DEBUG-a4f2]`. Cleanup at the end becomes a single grep. Untagged logs survive; tagged logs die.
 
+**Throwaway harnesses that bind-mount host filesystems isolate propagation at setup.** After any `mount --rbind` of an API filesystem (`/dev`, `/sys`, `/run`) into a chroot or repair root, immediately run `mount --make-rprivate <target>` before use. A recursive bind copies shared propagation, so unmounting the copy can unmount the original.
+
 **Perf branch.** For performance regressions, logs are usually wrong. Instead: establish a baseline measurement (timing harness, `performance.now()`, profiler, query plan), then bisect. Measure first, fix second.
 
 ## Phase 5: Fix + regression test
@@ -139,4 +143,5 @@ Required before declaring done:
 - [ ] Regression test passes (or absence of seam is documented)
 - [ ] All `[DEBUG-...]` instrumentation removed (`grep` the prefix)
 - [ ] Throwaway prototypes deleted (or moved to a clearly-marked debug location)
+- [ ] For any `--rbind` harness, teardown first asserts `findmnt -o PROPAGATION <target>` reads `private` and refuses a recursive unmount otherwise, then confirms host sentinel mounts such as `/dev/pts` and `/sys/fs/cgroup` still exist after teardown
 - [ ] The hypothesis that turned out correct is stated in the commit / PR message, so the next debugger learns

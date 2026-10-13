@@ -1,5 +1,5 @@
 ---
-name: tdd
+name: "tdd"
 description: Use when the user wants to build features or fix bugs test-first, mentions "red-green-refactor", or wants integration tests.
 metadata:
   upstream: mattpocock/skills
@@ -24,6 +24,8 @@ A **seam** is the public boundary you test at: the interface where you observe b
 **Test only at pre-agreed seams.** Before writing any test, write down the seams under test and confirm them with the user. No test is written at an unconfirmed seam. You can't test everything, so agreeing the seams up front is how testing effort lands on the critical paths and complex logic instead of every edge case.
 
 Ask: "What's the public interface, and which seams should we test?" Give each proposed seam a one-line note on what it catches and what it misses.
+
+**Test through the production wrapper.** When production wraps a call (client settings, caches, middleware), the integration test runs through that wrapper or with the same settings, and names the wrapper in the test. A seam that skips the wrapper proves a different path; for example, a query the deployed client runs with a query cache enabled must be tested with that cache setting applied.
 
 When the shape of that interface is itself in question (how deep the module is, where the seam belongs, what the interface should expose), call the Skill tool with "codebase-design" for the vocabulary. It is the shared source of the module, interface, depth, seam, adapter, leverage and locality terms, and it is a reference to consult, not a session to run.
 

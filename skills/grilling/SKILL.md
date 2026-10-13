@@ -1,5 +1,5 @@
 ---
-name: grilling
+name: "grilling"
 description: Use when the user wants a plan, decision, or idea stress-tested before acting on it, or uses any 'grill' trigger phrase.
 ---
 
@@ -29,7 +29,7 @@ When the user asks for rounds, ask the whole frontier at once instead: number ev
 
 ## Facts, defaults and decisions
 
-Finding _facts_ is your job. When a question needs a fact from the environment (code, files, docs, tools), look it up instead of asking; dispatch a sub-agent for anything slow. This covers each option's premises too: before you present options, list the facts each one depends on (formats, paths, limits, permissions of the systems it touches) and look them up. An option whose premise is unverified says so in its body, and your recommendation may not rest on it. A running lookup blocks only the questions downstream of it: keep asking the rest of the frontier while it runs. It blocks claims too: until it reports, state only what has returned, and label any inference about the unexplored system as a guess.
+Finding _facts_ is your job. When a question needs a fact from the environment (code, files, docs, tools), look it up instead of asking; dispatch a sub-agent for anything slow. When the fact is what exists in a repo, state it from `origin/<default>` after a fetch, not from the working tree: a local checkout is a cache, and an unfetched one silently describes already-merged work as missing. This covers each option's premises too: before you present options, list the facts each one depends on (formats, paths, limits, permissions of the systems it touches) and look them up. An option whose premise is unverified says so in its body, and your recommendation may not rest on it. A running lookup blocks only the questions downstream of it: keep asking the rest of the frontier while it runs. It blocks claims too: until it reports, state only what has returned, and label any inference about the unexplored system as a guess.
 
 _Direction decisions_ (what, for whom, which first) are the user's. Put each one to them and wait, however obvious your recommendation looks.
 
