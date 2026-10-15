@@ -16,7 +16,9 @@ default `main`, including the working tree. Do not expand beyond that fence.
 
 Check available capabilities before naming an agent or skill.
 
-- If `Comment Sicko` is available, ask it to review the exact scope.
+- If `Comment Sicko` is available, ask it to review the exact scope. In Claude Code the PR push
+  gate counts only an Agent call to `Comment Sicko`; a general agent told to apply this skill
+  does not pass it.
 - If it is unavailable, perform a concise direct review of the same scope. The review must
   not fail because a named subagent is missing.
 - If you wrote the diff in this context, the review runs in a fresh one: Comment Sicko, or
