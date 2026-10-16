@@ -1,11 +1,11 @@
 ---
-name: merge
-description: Use when the user runs /merge to say a pull request has merged and the local repo should be cleaned up for the next piece of work.
+name: merged
+description: Use when the user runs /merged to say a pull request has merged and the local repo should be cleaned up for the next piece of work.
 argument-hint: "PR number or URL (optional; defaults to the current branch's PR)"
 disable-model-invocation: true
 ---
 
-The user has merged a PR. Leave the repo on an up-to-date default branch, with every finished branch and worktree gone and nothing that anyone still needs touched. This skill never merges anything: if the PR is still open, merging is the user's call, and `/merge` is not that call.
+The user has merged a PR. Leave the repo on an up-to-date default branch, with every finished branch and worktree gone and nothing that anyone still needs touched. This skill never merges anything: if the PR is still open, merging is the user's call, and `/merged` is not that call.
 
 Other agents may share this repo, so "clean up everything" means everything that is provably finished. A branch or worktree that might still hold someone's work stays, and the report says why.
 

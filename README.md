@@ -44,7 +44,7 @@ npx skills add HexSleeves/skills -g
 - **create-verification-skill**: User-invoked only; generates a project-local skill plus feature map that teaches an agent to run, drive, and debug the app like a user. From cursor/plugins pstack (MIT).
 - **diagnosing-bugs**: Diagnosis loop for hard bugs and performance regressions, built on a tight red-capable feedback loop before any hypothesis. Fork of mattpocock/skills (MIT).
 - **maintain-verification-skill**: User-invoked only; periodic pass that keeps a project's verification skill and feature map accurate, with at most one PR of proven corrections. From cursor/plugins pstack (MIT).
-- **merge**: User-invoked only; after a PR merges, removes the branches and worktrees that are provably finished, pulls the default branch, and readies the repo for the next piece of work.
+- **merged**: User-invoked only; after a PR merges, removes the branches and worktrees that are provably finished, pulls the default branch, and readies the repo for the next piece of work.
 - **no-comments**: Review scoped code comments, fix accepted findings, and offer enforceable encodings for claimed constraints.
 - **tdd**: Red-green loop at agreed seams, with red checked by test count, mutation for pinned behaviour, and no code without a runner. Fork of mattpocock/skills (MIT).
 - **why**: Evidence-backed answers to "why does X work this way" from source control, issues, docs, and chat. Fork of cursor/plugins pstack (MIT).
