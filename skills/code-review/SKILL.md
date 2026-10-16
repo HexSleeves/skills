@@ -63,6 +63,10 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 Issue both sub-agent calls together, in the foreground, and aggregate the reports they return.
 
+When this skill runs inside a dispatched sub-agent (another agent invoked it, not the user), run both axes yourself in that context instead: work through the Standards brief, then the Spec brief, each against the contents listed below, and keep their findings in separate reports for step 6.
+
+Both axes carry the **permission rule**: a finding or proposed fix that rests on whether a principal may use a cloud resource (KMS key, IAM role, bucket or key policy) names the policy document that decides it, and quotes that document from a read-only call to the live system when access exists; otherwise it labels the claim "docs-only, unverified until apply". Only the policy itself evidences a permission claim; a plan or dry run proves shape, not authority. Paste this rule into both prompts.
+
 Each sub-agent must run the diff command itself, so dispatch an agent type that has a shell. Read-only agent types (Read/Grep/Glob only) review the working tree instead of the diff. If only read-only types exist, paste the diff into both prompts. When a report says it could not run git, rerun that axis before aggregating.
 
 **Standards sub-agent prompt** should include:
