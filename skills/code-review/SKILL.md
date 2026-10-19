@@ -83,6 +83,8 @@ Each sub-agent must run the diff command itself, so dispatch an agent type that 
 
 If the spec is missing, skip the Spec sub-agent and note this in the final report.
 
+**Comment pass:** when a `Comment Sicko` agent type is available, spawn it in the same batch, report-only, on the same diff command. Its verdicts on comments and on workaround code then land in this review's fix round, so the pre-push comment review runs on a diff it has already seen.
+
 ### 5. Check the CI target was the gate
 
 Read the repo's CI entry point (its CI workflow, `make ci` or the equivalent target, or the gate its docs name) and list its steps. Check the evidence offered for this branch ran each of those steps, or name the ones skipped and why in the final report. A green subset is not a green CI; for example, typecheck and tests passing locally say nothing about a bundle-budget step the CI target also runs.
@@ -91,7 +93,7 @@ Then confirm the CI system runs it. For GitHub Actions, `gh api repos/<o>/<r>/ac
 
 ### 6. Aggregate
 
-Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned. Do **not** merge or rerank findings, because the two axes are deliberately separate (see _Why two axes_).
+Present the two reports under `## Standards` and `## Spec` headings, verbatim or lightly cleaned, and the comment pass, when it ran, under `## Comments`. Do **not** merge or rerank findings, because the two axes are deliberately separate (see _Why two axes_).
 
 End with a one-line summary: total findings per axis, and the worst issue _within each axis_ (if any). Don't pick a single winner across axes: that's the reranking the separation exists to prevent.
 
