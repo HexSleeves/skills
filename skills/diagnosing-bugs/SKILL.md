@@ -1,6 +1,6 @@
 ---
 name: "diagnosing-bugs"
-description: Use when the user says "diagnose"/"debug this", or reports a hard bug or performance regression (something broken, throwing, failing, or slow).
+description: Use when the user says "diagnose"/"debug this", or reports a hard bug, a flaky or intermittent failure, or a performance regression (something broken, throwing, failing, or slow), including when handing its fix to a subagent.
 metadata:
   upstream: mattpocock/skills
 ---
@@ -57,6 +57,10 @@ The goal is not a clean repro but a **higher reproduction rate**. Loop the trigg
 ### When you genuinely cannot build a loop
 
 Stop and say so explicitly. List what you tried. Ask the user for: (a) access to whatever environment reproduces it, (b) a redacted captured artifact (HAR file, log dump, core dump, screen recording with timestamps), or (c) permission to add temporary production instrumentation. Do **not** proceed to hypothesise without a loop.
+
+### Delegating a fix
+
+A subagent sent to fix a flaky, intermittent or one-off failure gets this skill named in its prompt and a stop condition: "if you cannot reproduce it in N attempts, report what you tried and change no production code." Without the loop rule in the prompt, a subagent treats plausible suspects as the cause and rewrites code to match them.
 
 ### Completion criterion: a tight loop that goes red
 
