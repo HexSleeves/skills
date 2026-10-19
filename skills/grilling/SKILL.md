@@ -11,7 +11,7 @@ The **frontier** is every open decision whose prerequisites are settled: the que
 
 ## Asking
 
-Ask **one question at a time**, then wait for the answer. Pick the frontier decision whose answer unblocks the most of the tree. Several questions at once is bewildering.
+Ask **one question at a time** while the answers keep changing the design, then wait for the answer. Pick the frontier decision whose answer unblocks the most of the tree. After two answers in a row that take your recommendation, or once what is left is lower-stakes or independent (placement, naming, dates, ADR form), send the rest of the frontier as one numbered batch, each with a recommended default, and ask for "rest approved" or exceptions.
 
 Format each question like so:
 
