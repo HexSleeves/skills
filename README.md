@@ -43,6 +43,7 @@ npx skills add HexSleeves/skills -g
 - **code-review**: Review a branch against the repo's standards and the originating spec, once per branch before the PR. Fork of mattpocock/skills (MIT).
 - **create-verification-skill**: User-invoked only; generates a project-local skill plus feature map that teaches an agent to run, drive, and debug the app like a user. From cursor/plugins pstack (MIT).
 - **diagnosing-bugs**: Diagnosis loop for hard bugs and performance regressions, built on a tight red-capable feedback loop before any hypothesis. Fork of mattpocock/skills (MIT).
+- **implement-spec**: User-invoked only; implements a `to-spec` spec and its `to-tickets` task graph on one integration branch with parallel implementer subagents, bounded by the host and checked against the repo's CI target. Fork of mattpocock/skills (MIT).
 - **maintain-verification-skill**: User-invoked only; periodic pass that keeps a project's verification skill and feature map accurate, with at most one PR of proven corrections. From cursor/plugins pstack (MIT).
 - **merged**: User-invoked only; after a PR merges, removes the branches and worktrees that are provably finished, pulls the default branch, and readies the repo for the next piece of work.
 - **no-comments**: Review scoped code comments, fix accepted findings, and offer enforceable encodings for claimed constraints.
