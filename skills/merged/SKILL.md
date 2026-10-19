@@ -39,7 +39,7 @@ Use the script's verdicts as the whole delete list, and add nothing to it on jud
 2. **A branch marked `switch`:** in the main checkout, run `git switch <default>`. If no local default branch exists, this creates it from `origin`.
 3. **Pull:** in the main checkout, run `git pull --ff-only`, after noting the old tip with `git rev-parse <default>`. If the fast-forward fails, or the script's `default` row says `local=` with commits ahead, the local default branch has commits of its own. Leave them where they are, skip the pull and step 5's dependency check (both need the new tip), and carry on with step 4. The report shows `git log --oneline origin/<default>..<default>` and asks whether to rebase those commits or move them to a branch; never reset or move the branch without that answer.
 4. **Branches marked `delete` or `switch`:** run `git branch -D <name>`, copying each name exactly as the script printed it. `-D` is needed because `-d` refuses squash-merged branches; the script has already proved them finished against `origin`, so a failed pull does not change that.
-5. **The merged PR's remote branch:** if `git ls-remote --heads origin <headRefName>` still lists it, offer to delete it. That is a push, so ask first. Leave every other remote branch alone.
+5. **The merged PR's remote branch:** read its tip and the PR's merged head in one command (`gh api repos/<o>/<r>/git/ref/heads/<headRefName> -q .object.sha` and `gh pr view <n> -R <o>/<r> --json headRefOid -q .headRefOid`). When they match, delete it with `gh api -X DELETE repos/<o>/<r>/git/refs/heads/<headRefName>`; running /merged is the approval for this one deletion. On Adobe repos run it through `with-adobe-route`, whose merged-branch guard refuses `git push --delete`. When the tip has moved since the merge, ask first. Leave every other remote branch alone.
 
 Never drop a stash. The script lists stashes made on finished branches, and the report passes them on.
 
@@ -53,7 +53,7 @@ Never drop a stash. The script lists stashes made on finished branches, and the 
 
 ```
 Merged: #<n> <title>. <default> is at <short sha> (<k> new commits).
-Removed: <worktree paths>; <branch names>
+Removed: <worktree paths>; <branch names>; remote <headRefName>
 Kept:
 - <name>: <reason from the script, or what git refused>
 Stashes: <refs, or none>
