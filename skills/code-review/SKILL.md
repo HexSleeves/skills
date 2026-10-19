@@ -79,13 +79,15 @@ Each sub-agent must run the diff command itself, so dispatch an agent type that 
 
 - The diff command and commit list.
 - The path or fetched contents of the spec.
-- The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong; (d) tests whose seam skips a production wrapper (client settings, caches, middleware) that changes how the code under test executes, so the test proves a path production does not run. Quote the spec line for each finding. Under 400 words."
+- The brief: "Report: (a) requirements the spec asked for that are missing or partial; (b) behaviour in the diff that wasn't asked for (scope creep); (c) requirements that look implemented but where the implementation looks wrong; (d) tests whose seam skips a production wrapper (client settings, caches, middleware) that changes how the code under test executes, so the test proves a path production does not run; (e) restructured steps ("build once", "inline", "merge two calls") that stop passing a value one command handed the next: check each value the old steps passed; (f) when the spec is an audit report, each finding that changes existing behaviour or config, checked against the history of the lines it touches (`git log -S '<token>' -- <file>` and the PR body that introduced them): one that reverses a recorded decision is a decision to revisit, with the recorded reason. Quote the spec line for each finding. Under 400 words."
 
 If the spec is missing, skip the Spec sub-agent and note this in the final report.
 
 ### 5. Check the CI target was the gate
 
 Read the repo's CI entry point (its CI workflow, `make ci` or the equivalent target, or the gate its docs name) and list its steps. Check the evidence offered for this branch ran each of those steps, or name the ones skipped and why in the final report. A green subset is not a green CI; for example, typecheck and tests passing locally say nothing about a bundle-budget step the CI target also runs.
+
+Then confirm the CI system runs it. For GitHub Actions, `gh api repos/<o>/<r>/actions/permissions` shows `enabled: true` and `gh run list --workflow <file> --limit 1` shows a recent run. If either fails, report "CI configured but not running", treat the local runs as the only gate, and keep any claim that CI enforces the check out of the PR body.
 
 ### 6. Aggregate
 
