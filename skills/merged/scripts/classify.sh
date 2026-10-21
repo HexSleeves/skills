@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Sorts a repo's local branches and linked worktrees into done and still in use,
-# after a PR merge. Fetches with --prune and changes nothing else.
+# after a PR merge. Fetches with --prune, and the heads of recently merged PRs
+# it lacks, and changes nothing else.
 #
 # Usage: classify.sh [repo-dir]
 #
@@ -38,13 +39,66 @@ if g rev-parse --verify --quiet "refs/heads/$def" >/dev/null; then
 fi
 printf 'default\t%s\t%s\tgh=%s local=%s\n' "$def" "$(g rev-parse --short "$base")" "$gh_ok" "$local_state"
 
+: >"$tmp/merged_prs"
+if [ "$gh_ok" = 1 ]; then
+  (cd "$dir" && gh pr list --state merged --limit 50 --json number,headRefOid,mergeCommit \
+    -q '.[] | select(.mergeCommit != null) | "\(.number) \(.headRefOid) \(.mergeCommit.oid)"' \
+    >"$tmp/merged_prs" 2>/dev/null) || : >"$tmp/merged_prs"
+fi
+
+have() { g cat-file -e "$1^{commit}" 2>/dev/null; }
+patch_ids() {
+  g -c color.ui=never log -p --no-ext-diff --format='commit %H' "$@" | g patch-id --stable | cut -d ' ' -f 1
+}
+
+# Writes the patch-ids of a merged PR's own commits to $tmp/pr-<n>.ids, or
+# fails. The PR counts only when its merge commit is in $base and has the PR
+# head's tree, so the squash dropped nothing the head carried.
+pr_ids() {
+  local n=$1 head=$2 mc=$3 f=$tmp/pr-$1
+  [ -e "$f.bad" ] && return 1
+  [ -e "$f.ids" ] && return 0
+  if { have "$head" ||
+       { g fetch --quiet origin "$head" </dev/null 2>/dev/null && have "$head"; } ||
+       { g fetch --quiet origin "refs/pull/$n/head" </dev/null 2>/dev/null && have "$head"; }; } &&
+     have "$mc" && g merge-base --is-ancestor "$mc" "$base" &&
+     [ "$(g rev-parse "$head^{tree}")" = "$(g rev-parse "$mc^{tree}")" ] &&
+     g rev-parse --verify --quiet "$mc^1" >/dev/null; then
+    patch_ids "$mc^1..$head" >"$f.ids"
+  else
+    touch "$f.bad"; return 1
+  fi
+}
+
+# A batch PR is built by cherry-picking local sub-branches and then
+# squash-merged, so a sub-branch's commits never reach $base by hash. It is
+# absorbed when every one of its commits has the patch-id of a commit on one
+# merged PR's head.
+absorbed_reason() {
+  local tip=$1 n ids num head mc
+  [ -s "$tmp/merged_prs" ] || return 1
+  n=$(g rev-list --count "$base..$tip")
+  [ "$n" -gt 0 ] && [ "$(g rev-list --count --merges "$base..$tip")" = 0 ] || return 1
+  ids=$(patch_ids "$base..$tip")
+  [ "$(grep -c . <<<"$ids")" = "$n" ] || return 1
+  while read -r num head mc; do
+    pr_ids "$num" "$head" "$mc" || continue
+    if ! grep -qvxFf "$tmp/pr-$num.ids" <<<"$ids"; then
+      echo "absorbed into PR #$num"; return
+    fi
+  done <"$tmp/merged_prs"
+  return 1
+}
+
 # Prints why a branch is done, or fails. Squash merges leave the branch's own
 # commits outside $base, so "done" means GitHub merged this exact tip, or the
 # branch's changes are already in $base. Content alone is not enough: a branch
 # just cut for new work has nothing of its own either, so that case also needs
-# a merged PR or an upstream the remote deleted.
+# a merged PR or an upstream the remote deleted. Two cases need no such
+# evidence: a sub-branch absorbed into a squash-merged batch PR, and a branch
+# the Agent tool's worktree isolation left at an ancestor of $base.
 done_reason() {
-  local b=$1 tip=$2 track=$3 pr='' evidence='' t
+  local b=$1 tip=$2 track=$3 wt=$4 pr='' evidence='' t
   if [ "$gh_ok" = 1 ]; then
     pr=$(cd "$dir" && gh pr list --head "$b" --state merged --json number,headRefOid \
       -q "map(select(.headRefOid == \"$tip\"))[0].number // empty" 2>/dev/null) || pr=''
@@ -54,15 +108,22 @@ done_reason() {
   fi
   if [ -n "$pr" ]; then evidence="PR #$pr merged"
   elif [ "$track" = "[gone]" ]; then evidence="upstream deleted"
-  else return 1
   fi
-  if g merge-base --is-ancestor "$tip" "$base"; then
-    echo "$evidence, commits in $base"; return
+  if [ -n "$evidence" ]; then
+    if g merge-base --is-ancestor "$tip" "$base"; then
+      echo "$evidence, commits in $base"; return
+    fi
+    if t=$(g merge-tree --write-tree "$base" "$tip" 2>/dev/null) && [ "$t" = "$base_tree" ]; then
+      echo "$evidence, changes already in $base"; return
+    fi
   fi
-  if t=$(g merge-tree --write-tree "$base" "$tip" 2>/dev/null) && [ "$t" = "$base_tree" ]; then
-    echo "$evidence, changes already in $base"; return
-  fi
-  return 1
+  case $b in
+    worktree-agent-*)
+      if [ -z "$wt" ] && g merge-base --is-ancestor "$tip" "$base"; then
+        echo "harness branch at an ancestor of $def, no worktree"; return
+      fi ;;
+  esac
+  absorbed_reason "$tip"
 }
 
 keep_reason() {
@@ -81,7 +142,7 @@ keep_reason() {
 fmt="%(refname:short)%1f%(objectname)%1f%(worktreepath)%1f%(upstream:track)"
 g for-each-ref --format="$fmt" refs/heads | while IFS=$sep read -r b tip wt track; do
   [ "$b" = "$def" ] && continue
-  if reason=$(done_reason "$b" "$tip" "$track"); then v=delete
+  if reason=$(done_reason "$b" "$tip" "$track" "$wt"); then v=delete
   else v=keep; reason=$(keep_reason "$tip" "$track")
   fi
   printf '%s\n' "$b$sep$tip$sep$v$sep$reason$sep${wt:--}" >>"$tmp/branches"

@@ -33,7 +33,7 @@ bash <this skill's dir>/scripts/classify.sh <main checkout>
 
 It fetches with `--prune` and prints one row per branch, worktree and relevant stash, each with a verdict and a reason. Read every row before acting on any of them.
 
-Use the script's verdicts as the whole delete list, and add nothing to it on judgment. Squash merges, which most of these repos use, leave branches that `git branch --merged` reports as unmerged, and a freshly cut branch looks merged to it. The script marks a branch `delete` only when GitHub merged that exact tip, or when the branch's changes are already in the default branch and the merge left evidence (a merged PR, or an upstream the remote deleted). A worktree is marked `delete` only when it is clean and unlocked.
+Use the script's verdicts as the whole delete list, and add nothing to it on judgment. Squash merges, which most of these repos use, leave branches that `git branch --merged` reports as unmerged, and a freshly cut branch looks merged to it. The script marks a branch `delete` only when GitHub merged that exact tip, or when the branch's changes are already in the default branch and the merge left evidence (a merged PR, or an upstream the remote deleted). Two more cases count as finished. A sub-branch cherry-picked into a batch PR is absorbed when every one of its commits has the patch-id of a commit on a merged PR's head, and that PR's squash commit has the head's tree; one unmatched commit keeps it. A `worktree-agent-*` branch left by the Agent tool's worktree isolation is finished when it points at an ancestor of the default branch and no worktree uses it. A worktree is marked `delete` only when it is clean and unlocked.
 
 ## 4. Clean up, in this order
 
