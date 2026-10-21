@@ -30,6 +30,7 @@ Communication to and from subagents should be sparse. Communicate primarily thro
    - confirms its worktree is based on the integration branch before starting, and resets onto it if not;
    - calls the Skill tool with `tdd` to build the ticket;
    - merges the integration branch tip into its own branch before reporting done
+   - reproduces any intermittent failure in a test file the branch touched by running the touched files together in one process, in each order, before calling it pre-existing or flaky (a shared mock under `isolate: false` leaks this way)
 
 5. Once an **implementer subagent** completes, verify `git merge-base --is-ancestor <base> <branch>`, then merge its work to the integration branch. When the ticket tip descends from the integration branch, fast-forward it yourself; use a **merger subagent** only when the merge has conflicts to resolve.
 
@@ -37,6 +38,6 @@ Communication to and from subagents should be sparse. Communicate primarily thro
 
 7. Once all tickets are complete, call the Skill tool with `code-review` on the integration branch. Fix all issues raised by the code review in a single **implementer subagent**.
 
-8. Read the repo's CI entry point (its CI workflow, `make ci` or the equivalent) and run each of its steps locally, or list the ones skipped and why. Then, if a draft PR exists, mark it ready for review; otherwise open the PR, or resolve each ticket the way the issue tracker closes work, and report the integration branch. For a product with a user-facing UI, the done report says whether visual design was done and shows one screenshot.
+8. Read the repo's CI entry point (its CI workflow, `make ci` or the equivalent) and run each of its steps locally, or list the ones skipped and why. A containerised target that mounts the checkout fails from a worktree, whose `.git` file points outside the mount: run it from a `git clone --branch <integration>`, and delete the clone through the same container user. A PR that closes several tickets writes one closing keyword per ticket ("Closes #1. Closes #2."); confirm with `gh pr view --json closingIssuesReferences`. Then, if a draft PR exists, mark it ready for review; otherwise open the PR, or resolve each ticket the way the issue tracker closes work, and report the integration branch. For a product with a user-facing UI, the done report says whether visual design was done and shows one screenshot.
 
 9. Clean up all **implementer subagent** worktrees. Delete a ticket branch only after `git merge-base --is-ancestor <branch> <integration>` succeeds, then with `git branch -D` (`-d` refuses branches merged by squash or rebase).

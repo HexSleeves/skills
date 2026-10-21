@@ -11,7 +11,7 @@ The **frontier** is every open decision whose prerequisites are settled: the que
 
 ## Asking
 
-Ask **one question at a time** while the answers keep changing the design, then wait for the answer. Pick the frontier decision whose answer unblocks the most of the tree. After two answers in a row that take your recommendation, or once what is left is lower-stakes or independent (placement, naming, dates, ADR form), send the rest of the frontier as one numbered batch, each with a recommended default, and ask for "rest approved" or exceptions.
+Ask **one question at a time** while the answers keep changing the design, then wait for the answer. Pick the frontier decision whose answer unblocks the most of the tree. After two answers in a row that take your recommendation, or once what is left is lower-stakes or independent (placement, naming, dates, ADR form), send the rest of the frontier as one numbered batch, each with a recommended default, and ask for "rest approved" or exceptions. Batch only what the user would approve unread. A question that reverses a recorded decision, creates an ADR, or offers more than two options stays one at a time, however many recommendations they have taken: quick acceptance shows trust in the recommendations, not spare attention.
 
 Format each question like so:
 
@@ -25,11 +25,13 @@ Format each question like so:
 
 Word the recommendation as an answer to the question as asked, so agreeing with it means saying yes.
 
+When an option is named by a label from earlier work (a prototype variant, another ticket's decision, a codename), the question body shows what it is: the artifact itself where one exists (an image path or link), otherwise one plain sentence. Never assume the user remembers a label across sessions.
+
 When the user asks for rounds, ask the whole frontier at once instead: number every question in the format above, separate them with `---`, and keep any question that depends on another one in the same round for the next round.
 
 ## Facts, defaults and decisions
 
-Finding _facts_ is your job. When a question needs a fact from the environment (code, files, docs, tools), look it up instead of asking; dispatch a sub-agent for anything slow. When the fact is what exists in a repo, state it from `origin/<default>` after a fetch, not from the working tree: a local checkout is a cache, and an unfetched one silently describes already-merged work as missing. This covers each option's premises too: before you present options, list the facts each one depends on (formats, paths, limits, permissions of the systems it touches) and look them up. An option whose premise is unverified says so in its body, and your recommendation may not rest on it. A running lookup blocks only the questions downstream of it: keep asking the rest of the frontier while it runs. It blocks claims too: until it reports, state only what has returned, and label any inference about the unexplored system as a guess.
+Finding _facts_ is your job. When a question needs a fact from the environment (code, files, docs, tools), look it up instead of asking; dispatch a sub-agent for anything slow. When the fact is what exists in a repo, state it from `origin/<default>` after a fetch, not from the working tree: a local checkout is a cache, and an unfetched one silently describes already-merged work as missing. This covers each option's premises too: before you present options, list the facts each one depends on (formats, paths, limits, permissions of the systems it touches) and look them up. An option whose premise is unverified says so in its body, and your recommendation may not rest on it. A name is not a premise: a table, function or role name says what its author meant, so open the code that reads the data before relying on it, and give each premise a file:line. A default that carries numbers from another codebase or an earlier design is checked against the target's own scale (the values it compares against and the modifiers that scale them), and the option shows the comparison ("a hit of 6 or more; hits here do 3 to 6"). When review rounds on a glossary, spec or ADR built from these answers each find one new factual error, stop reviewing and run one fact-check pass that reads the code paths the design runs through. A running lookup blocks only the questions downstream of it: keep asking the rest of the frontier while it runs. It blocks claims too: until it reports, state only what has returned, and label any inference about the unexplored system as a guess.
 
 _Direction decisions_ (what, for whom, which first) are the user's. Put each one to them and wait, however obvious your recommendation looks.
 

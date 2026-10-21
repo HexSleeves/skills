@@ -697,6 +697,15 @@ Also read all active cross-cutting principles. If there are no OPEN
 observations and no outstanding principles: report "no open observations
 or outstanding principles", update the timestamp, and stop.
 
+**Same-day guard (scheduled runs).** When `last-review-date.txt` already
+holds today's date and `reviews/<today>/` holds a review record, a
+scheduled run does only the cheap re-checks against that record's queue:
+new arrivals since it was written, the parked conditions, the staged-work
+gate above, and the integrity checks. It reports "already reviewed today"
+with any arrivals, refreshes the timestamps, and stops; the full
+cross-check resumes at the next firing. The delta is computed against
+the record, never assumed.
+
 **Step 2 — inventory skills and classify each write target by whether
 an edit SURVIVES, not by whether it succeeds.** List all skills (system
 prompt `<available_skills>` or the skills directory) and put each into one
