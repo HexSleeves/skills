@@ -22,7 +22,7 @@ The issue tracker should have been provided to you. If not, tell the user to run
 
 Whatever the user said is the fixed point (a commit SHA, branch name, tag, `main`, `HEAD~5`, etc.). If they didn't specify one, ask for it.
 
-Capture the diff command once: `git diff <fixed-point>...HEAD` (three-dot, so the comparison is against the merge-base). Also note the list of commits via `git log <fixed-point>..HEAD --oneline`.
+Capture the diff command once: `git diff <fixed-point>...HEAD` (three-dot, so the comparison is against the merge-base). Also note the list of commits via `git log <fixed-point>..HEAD --oneline`. On uncommitted work (as under `implement`), the three-dot form shows committed changes only: use `git diff $(git merge-base <fixed-point> HEAD)` and list the untracked files for the sub-agents to read.
 
 Before going further, confirm the fixed point resolves (`git rev-parse <fixed-point>`) and the diff is non-empty. A bad ref or empty diff should fail here, not inside two parallel sub-agents.
 
@@ -66,6 +66,8 @@ Issue both sub-agent calls together, in the foreground, and aggregate the report
 When this skill runs inside a dispatched sub-agent (another agent invoked it, not the user), run both axes yourself in that context instead: work through the Standards brief, then the Spec brief, each against the contents listed below, and keep their findings in separate reports for step 6.
 
 Both axes carry the **permission rule**: a finding or proposed fix that rests on whether a principal may use a cloud resource (KMS key, IAM role, bucket or key policy) names the policy document that decides it, and quotes that document from a read-only call to the live system when access exists; otherwise it labels the claim "docs-only, unverified until apply". Only the policy itself evidences a permission claim; a plan or dry run proves shape, not authority. Paste this rule into both prompts.
+
+Every sub-agent is report-only: to test a suspicion that needs a toolchain shim or installer (mise, asdf, nvm, npx, bunx, pip), it describes the experiment instead of running it, and its before/after snapshot covers global tool dirs (`~/.local/share/mise/installs`, `~/.npm/_npx`) as well as `git status`. Paste this rule into every prompt.
 
 Each sub-agent must run the diff command itself, so dispatch an agent type that has a shell. Read-only agent types (Read/Grep/Glob only) review the working tree instead of the diff. If only read-only types exist, paste the diff into both prompts. When a report says it could not run git, rerun that axis before aggregating.
 
