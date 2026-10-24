@@ -3,7 +3,15 @@
 # after a PR merge. Fetches with --prune, and the heads of recently merged PRs
 # it lacks, and changes nothing else.
 #
-# Usage: classify.sh [repo-dir]
+# Usage: classify.sh [--keep-worktree PATH]... [repo-dir]
+#   --keep-worktree  a worktree a thread is bound to; it and its branch stay
+# A worktree bound to a thread always stays, with its branch: the one holding the
+# caller's working directory, and any that an unarchived T3 thread names as its
+# worktreePath in T3's state database. When that database cannot be read, every
+# worktree under ~/.t3/worktrees stays.
+#
+# Exit 3, before any fetch, when origin is an Adobe GitHub repo and gh cannot
+# reach it: rerun inside ~/Projects/adobe/scripts/with-adobe-route.
 #
 # Prints tab-separated rows:
 #   default   <branch>  <short sha of origin/branch>  gh=<0|1> local=<ahead N, behind M|missing>
@@ -15,15 +23,38 @@
 # that checkout to the default branch, then delete the branch.
 set -euo pipefail
 
+canon() { (cd "$1" 2>/dev/null && pwd -P) || printf '%s\n' "$1"; }
+args="$*"
+keep_wts=
+while [ "$#" -gt 0 ]; do
+  case $1 in
+    --keep-worktree) keep_wts+="$(canon "$2")"$'\n'; shift 2 ;;
+    -*) echo "classify.sh: unknown option $1" >&2; exit 1 ;;
+    *) break ;;
+  esac
+done
+caller_wt=$(git rev-parse --show-toplevel 2>/dev/null || true)
+[ -n "$caller_wt" ] && caller_wt=$(canon "$caller_wt")
+t3_root=$(canon "$HOME/.t3/worktrees")
+t3_db=$HOME/.t3/userdata/statev2.sqlite
+
 dir=$(git -C "${1:-.}" rev-parse --show-toplevel)
 g() { git -C "$dir" "$@"; }
 tmp=$(mktemp -d)
 trap 'rm -rf "$tmp"' EXIT
 sep=$'\x1f'
 
-g fetch --prune --quiet origin
 gh_ok=0
 (cd "$dir" && gh repo view --json name >/dev/null 2>&1) && gh_ok=1
+origin_url=$(g config --get remote.origin.url || true)
+if [ "$gh_ok" = 0 ] &&
+   printf '%s\n' "$origin_url" | grep -Eiq '^(ssh://)?git@github\.com-adobe[:/]|github\.com[:/][^/]*adobe[^/]*/'; then
+  echo "classify.sh: $origin_url is Adobe GitHub and gh cannot reach it, so every verdict would be a blind keep." >&2
+  echo "classify.sh: rerun as: ~/Projects/adobe/scripts/with-adobe-route --wait -- bash $0 $args" >&2
+  exit 3
+fi
+
+g fetch --prune --quiet origin
 def=$(g symbolic-ref --quiet --short refs/remotes/origin/HEAD || true)
 def=${def#origin/}
 if [ -z "$def" ] && [ "$gh_ok" = 1 ]; then
@@ -44,7 +75,20 @@ if [ "$gh_ok" = 1 ]; then
   (cd "$dir" && gh pr list --state merged --limit 50 --json number,headRefOid,mergeCommit \
     -q '.[] | select(.mergeCommit != null) | "\(.number) \(.headRefOid) \(.mergeCommit.oid)"' \
     >"$tmp/merged_prs" 2>/dev/null) || : >"$tmp/merged_prs"
+  (cd "$dir" && gh pr list --state open --limit 200 --json baseRefName -q '.[].baseRefName' \
+    >"$tmp/open_bases" 2>/dev/null) || : >"$tmp/open_bases"
 fi
+touch "$tmp/open_bases"
+
+# Prints why a branch is long-lived (a deploy or release line), or fails.
+long_lived() {
+  case $1 in
+    dev | develop | development | stage | staging | main | master | release/*)
+      echo "long-lived branch name"; return ;;
+  esac
+  if grep -qxF -- "$1" "$tmp/open_bases"; then echo "base of an open PR"; return; fi
+  return 1
+}
 
 have() { g cat-file -e "$1^{commit}" 2>/dev/null; }
 patch_ids() {
@@ -142,7 +186,8 @@ keep_reason() {
 fmt="%(refname:short)%1f%(objectname)%1f%(worktreepath)%1f%(upstream:track)"
 g for-each-ref --format="$fmt" refs/heads | while IFS=$sep read -r b tip wt track; do
   [ "$b" = "$def" ] && continue
-  if reason=$(done_reason "$b" "$tip" "$track" "$wt"); then v=delete
+  if reason=$(long_lived "$b"); then v=keep
+  elif reason=$(done_reason "$b" "$tip" "$track" "$wt"); then v=delete
   else v=keep; reason=$(keep_reason "$tip" "$track")
   fi
   printf '%s\n' "$b$sep$tip$sep$v$sep$reason$sep${wt:--}" >>"$tmp/branches"
@@ -163,8 +208,33 @@ main_br=$(head -n 1 "$tmp/worktrees" | cut -d "$sep" -f 2)
 dirty() { [ -n "$(git -C "$1" status --porcelain 2>/dev/null)" ]; }
 verdict_of() { awk -F "$sep" -v b="$1" '$1 == b { print $3 }' "$tmp/branches"; }
 
+# A thread whose worktree is removed cannot run again, so bound ones stay.
+t3_ok=0
+if [ -r "$t3_db" ] && command -v sqlite3 >/dev/null &&
+   sqlite3 -cmd '.timeout 5000' -separator "$sep" "file:$t3_db?mode=ro" \
+     "select json_extract(payload_json, '\$.worktreePath'), replace(title, char(9), ' ')
+      from orchestration_v2_projection_threads
+      where archived_at is null and deleted_at is null
+        and json_extract(payload_json, '\$.worktreePath') is not null" >"$tmp/t3_bound" 2>/dev/null; then
+  t3_ok=1
+fi
+bound_reason() {
+  local c title
+  c=$(canon "$1")
+  if [ "$c" = "$caller_wt" ]; then echo "bound to a thread: this session runs in it"; return; fi
+  if grep -qxF -- "$c" <<<"$keep_wts"; then echo "bound to a thread: --keep-worktree"; return; fi
+  if [ "$t3_ok" = 1 ]; then
+    title=$(awk -F "$sep" -v p="$c" -v q="$1" '$1 == p || $1 == q { t = substr($2, 1, 60); print (t == "" ? "untitled" : t); exit }' "$tmp/t3_bound")
+    if [ -n "$title" ]; then echo "bound to a thread: T3 \"$title\" (archive it to free this worktree)"; return; fi
+  else
+    case $c/ in "$t3_root"/*) echo "bound to a thread: T3 worktree, and T3's bindings could not be read"; return ;; esac
+  fi
+  return 1
+}
+
 tail -n +2 "$tmp/worktrees" | while IFS=$sep read -r p b l x; do
   if [ -n "$x" ]; then v=delete; r="directory is gone; git worktree prune clears it"
+  elif r=$(bound_reason "$p"); then v=keep
   elif [ -n "$l" ]; then v=keep; r="locked; another session may own it"
   elif [ "$b" = "(detached)" ]; then v=keep; r="detached HEAD"
   elif [ "$(verdict_of "$b")" != delete ]; then v=keep; r="branch $b is not done"

@@ -44,9 +44,9 @@ npx skills add HexSleeves/skills -g
 - **council**: Three reviewers from three model families (Opus, Muse, GPT Sol via Cursor) must each call a PR safe on its current head before it merges; the coordinator owns fixes and reconvenes the council after each one.
 - **create-verification-skill**: User-invoked only; generates a project-local skill plus feature map that teaches an agent to run, drive, and debug the app like a user. From cursor/plugins pstack (MIT).
 - **diagnosing-bugs**: Diagnosis loop for hard bugs and performance regressions, built on a tight red-capable feedback loop before any hypothesis. Fork of mattpocock/skills (MIT).
-- **implement-spec**: User-invoked only; implements a `to-spec` spec and its `to-tickets` task graph on one integration branch with parallel implementer subagents, bounded by the host and checked against the repo's CI target. Fork of mattpocock/skills (MIT).
+- **implement-spec**: Implements a `to-spec` spec and its `to-tickets` task graph on one integration branch with parallel implementer subagents, bounded by the host and checked against the repo's CI target. Fork of mattpocock/skills (MIT).
 - **maintain-verification-skill**: User-invoked only; periodic pass that keeps a project's verification skill and feature map accurate, with at most one PR of proven corrections. From cursor/plugins pstack (MIT).
-- **merged**: User-invoked only; after a PR merges, removes the branches and worktrees that are provably finished, pulls the default branch, and readies the repo for the next piece of work.
+- **merged**: After a PR merges (by hand or when its merge watcher exits), removes the branches and worktrees that are provably finished, pulls the default branch, and readies the repo for the next piece of work.
 - **no-comments**: Review scoped code comments, fix accepted findings, and offer enforceable encodings for claimed constraints.
 - **tdd**: Red-green loop at agreed seams, with red checked by test count, mutation for pinned behaviour, and no code without a runner. Fork of mattpocock/skills (MIT).
 - **why**: Evidence-backed answers to "why does X work this way" from source control, issues, docs, and chat. Fork of cursor/plugins pstack (MIT).

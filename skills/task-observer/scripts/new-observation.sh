@@ -8,8 +8,10 @@
 #   <slug>            kebab-case, no id prefix, no extension ("short-slug")
 #   [workspace-root]  the pinned absolute workspace path — the directory that
 #                     holds skill-observations/. Defaults to the environment
-#                     variable TASK_OBSERVER_WORKSPACE. One of the two is
-#                     required; the log is never resolved from the cwd.
+#                     variable TASK_OBSERVER_WORKSPACE, then to $HOME/.claude
+#                     when $HOME/.claude/skill-observations/observation-log
+#                     exists. With none of the three it fails; the log is
+#                     never resolved from the cwd.
 #
 # Prints the created file's absolute path on stdout (one line) and exits 0.
 # Any guard firing prints its message on stderr and exits 1 with NO file
@@ -49,8 +51,11 @@ esac
 case $slug in
   ([0-9][0-9][0-9][0-9]-*) echo "slug must not start with an id prefix: got '$slug'" >&2; exit 1 ;;
 esac
+if [ -z "$root" ] && [ -n "${HOME:-}" ] && [ -d "$HOME/.claude/skill-observations/observation-log" ]; then
+  root="$HOME/.claude"
+fi
 if [ -z "$root" ]; then
-  echo "no workspace root: pass it as the second argument or set TASK_OBSERVER_WORKSPACE" >&2; exit 1
+  echo "no workspace root: pass it as the second argument or set TASK_OBSERVER_WORKSPACE (no fallback: '${HOME:-}/.claude/skill-observations/observation-log' does not exist)" >&2; exit 1
 fi
 case $root in
   (/*) ;;

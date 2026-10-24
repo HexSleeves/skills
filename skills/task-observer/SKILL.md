@@ -202,7 +202,7 @@ record the sibling check: `references/logging.md` ("Write-time checks").
 
 Write the observation **within the same turn or the next, without
 interrupting the user's task**. Create the file with
-`bash scripts/new-observation.sh <slug>`, the only write path where it can
+`bash scripts/new-observation.sh <slug>` (root: `$TASK_OBSERVER_WORKSPACE`, else `$HOME/.claude`), the only write path where it can
 run, then load `references/logging.md` ("How to Log") for the format and
 rules. Write to disk after every 3rd completed todo and at every
 deliverable event. Retry a denied write once, through a second tool too.

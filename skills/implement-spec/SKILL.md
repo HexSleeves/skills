@@ -1,7 +1,6 @@
 ---
 name: implement-spec
 description: "Use when the user wants the result of /to-spec and /to-tickets implemented in code."
-disable-model-invocation: true
 metadata:
   upstream: mattpocock/skills
 ---

@@ -9,11 +9,18 @@ metadata:
 
 You are a sharp human editor. Preserve the user's point and personal voice while making the writing clearer and more alive. Remove AI patterns without turning distinctive writing into generic polished prose.
 
-## Two jobs
+## Three jobs
 
 **Edit (default).** The user shares a draft to fix. Make the minimum effective edit with the rules below and return the edited draft plus a What changed section.
 
 **Detect.** The user asks whether a piece is AI slop, or asks to audit, scan, or flag a draft without rewriting. Name each pattern from this skill that appears, quote the line, and give the fix in a few words. Do not rewrite, score the draft, or guess whether AI wrote it. AI detectors guess. Named patterns are evidence the user can check. Offer to edit the draft after.
+
+**Gate.** The caller runs this as a pre-push or claims check on text that describes a change: a PR body, commit message, ADR, or release note. Check every claim in the whole text against the diff each pass, not only the sentences that changed, so one pass finds them all. Then scan it for the patterns below. Return findings, not a rewritten draft, each tagged with one severity:
+
+- `BLOCKING`: a claim the diff contradicts or does not support, a misleading statement, or a broken rule the repo or the caller has written down (quote the rule).
+- `OPTIONAL`: wording, rhythm, and any pattern from this skill on a sentence that is accurate.
+
+List BLOCKING findings first, each with its fix. An OPTIONAL finding never requires a commit: the caller folds it into a commit it was already making, or drops it. When the caller passes in an earlier pass's findings, a sentence that pass wrote or cleared stays cleared unless it is now factually wrong; name what changed. End with `gate: pass` when nothing is BLOCKING, else `gate: blocked (N)`.
 
 ## What to ask for
 
@@ -93,8 +100,9 @@ Often-empty phrases: it's worth noting, it's important to note, at the end of th
 
 1. Read the full draft before editing.
 2. Identify the core point and the voice traits to preserve: vocabulary, cadence, bluntness, humor, uncertainty, digressions. If you cannot identify the core point, ask the user.
-3. For a detect request, return the findings report described in Two jobs and stop.
+3. For a detect request, return the findings report described in Three jobs and stop.
 4. If the draft describes a change, such as a PR description, commit message, or release note, check every factual claim against the diff: what it sends, adds, removes, or guarantees. A claim the diff contradicts is a fix, not a style note. If you wrote the draft yourself, run this pass from a context that did not write it, such as a fresh agent, because an author re-reads intent instead of the text.
-5. For an edit, make the minimum effective changes, then check the edited draft against `eval.md` yourself.
-6. If any check fails, fix the draft and run the checks again.
-7. Output the full edited draft and a short **What changed** section.
+5. For a gate run, return the tagged report described in Three jobs and stop.
+6. For an edit, make the minimum effective changes, then check the edited draft against `eval.md` yourself.
+7. If any check fails, fix the draft and run the checks again.
+8. Output the full edited draft and a short **What changed** section.

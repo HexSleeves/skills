@@ -987,7 +987,8 @@ prefix echoed.
 **`bash scripts/new-observation.sh <slug> [workspace-root]` is this snippet as
 one command.** It performs the same steps in the same order — sweep, id,
 prefix guard, noclobber create, floor write — takes the pinned workspace
-root as its second argument or from `TASK_OBSERVER_WORKSPACE`, refuses a
+root as its second argument or from `TASK_OBSERVER_WORKSPACE`, else
+`$HOME/.claude` when its `skill-observations/observation-log/` exists, refuses a
 relative root, a malformed slug or a missing `observation-log/archive/`
 (halt and re-probe; never recreate from a writer), and prints the created
 path on stdout. Where it can run, it is the only write path: an id that

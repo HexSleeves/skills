@@ -179,8 +179,10 @@ and the noclobber create") when any of them fires.
 **Run the snippet immediately before EVERY write, including the first and
 only one of a session** — an earlier read of the log is not a substitute,
 and the id the session-start scan printed is never an input to a write.
-Where a helper can run, `bash scripts/new-observation.sh <slug>` is the only
-write path: it performs this whole snippet and prints the created path, so
+Where a helper can run, `bash scripts/new-observation.sh <slug> [workspace-root]`
+is the only write path (the root defaults to `$TASK_OBSERVER_WORKSPACE`, then
+to `$HOME/.claude` when its `skill-observations/observation-log/` exists;
+with neither it fails): it performs this whole snippet and prints the created path, so
 derivation cannot drift from creation (the structural barrier the
 second-violation rule demands). Load `references/observation-log.md` ("Run
 the snippet immediately before every write") when skipping feels
