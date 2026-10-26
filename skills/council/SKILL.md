@@ -44,11 +44,16 @@ Answer these questions:
 Then anything else that would make this unsafe to merge.
 
 Verify each finding in the code before you report it. A finding without a file:line and a concrete failure scenario is an opinion, label it as one.
+Hold the change to its intent: code, tests, or guards the intent does not need are findings too.
+
+Severity: blocker = the intended case is wrong. should = a real bug callers will hit, within the intent. nit = everything else (other paths, rare cases, small perf costs, extra compatibility, style).
+
+Your turn is your whole review: it cannot resume after you return. Wait for any lock or long command in the same command (`flock -w`), or name the suite you left to CI, and end with the verdict.
 
 End with exactly one verdict line:
 VERDICT: SAFE | FIX | BLOCK
-SAFE = merge as is. FIX = merge after the listed fixes. BLOCK = the approach is wrong, not just the code.
-Under it, list each finding as: [severity] file:line, what fails, under what input or state.
+SAFE = merge as is (nits allowed). FIX = merge after the listed blocker or should fixes. BLOCK = the approach is wrong, not just the code.
+Under it, list each finding as: [blocker|should|nit] file:line, what fails, under what input or state.
 ```
 
 Then tell the user in a few lines what the council is reviewing, who sits on it, and the questions, and end the turn. Completion notifications wake you; do not poll.
@@ -57,20 +62,25 @@ Then tell the user in a few lines what the council is reviewing, who sits on it,
 
 When all three have reported, re-run the snapshot. A changed HEAD or status that you did not make means a member wrote: stop and show the user the difference before anything else.
 
-Check every finding against the code yourself before acting on it or relaying it. A member's confidence is not evidence, and a finding raised by one member is not outvoted by two SAFE verdicts: settle it on the code. Sort each into confirmed, refuted (say why), or out of scope for this change (say where it belongs).
+A report with no VERDICT line is not a vote: re-seat that member as a new `delegate_task` with the same brief and a new `clientRequestId`, in the same round, and say so in the report.
+
+Check every finding against the code yourself before acting on it or relaying it. A member's confidence is not evidence, and a finding raised by one member is not outvoted by two SAFE verdicts: settle it on the code. Sort each into confirmed, refuted (say why), or out of scope for this change (say where it belongs). Grade severity yourself: another path, a rare case, or a small cost is a nit whatever label it came with.
 
 Report to the user: one line per member with verdict and headline finding, then the confirmed findings, then what you refuted.
 
 ## 5. Fix and reconvene
 
-If any member returned FIX or BLOCK on a confirmed finding:
+If any member returned FIX or BLOCK on a confirmed blocker or should:
 
 - **BLOCK** means the approach is in question. Stop and bring it to the user; do not redesign on the council's say-so.
-- **FIX**: change only what the confirmed findings need, run the repo's verification, and push through the repo's normal pre-push rules. The council does not exempt the change from them.
+- **FIX**: change only what the confirmed findings need, preferring the fix that deletes or narrows code over a new lock, cache, helper, or option. Run the repo's verification, and push through the repo's normal pre-push rules. The council does not exempt the change from them.
+- **Nits**: decline each in one line and list it as a follow-up. A round that leaves only nits, or fixes that touch only comments, docs, or formatting, needs no new round.
+
+Before reconvening, compare `git diff --shortstat <base>` with the first round's. If the fixes grew the diff, cut back to what the confirmed findings need first. Your job is to keep the scope where the change started.
 
 Then reconvene every member, not just the dissenters, because the fix changed the code they all approved. Each round is a new `delegate_task` call with a new `clientRequestId`. Its brief carries the original brief, the new head SHA, every prior finding, your response to each (fixed at commit X, or refuted because Y), and any objection still open. Never continue a round through `t3_thread_send` on a member's child thread.
 
-After 3 rounds without unanimous SAFE, stop and hand the open disagreement to the user.
+The budget is 3 rounds. Extend it to 5 only when the user asks, or when a confirmed blocker or should stays open on security, permissions, auth, data loss, or state and concurrency. When the budget ends without unanimous SAFE, stop and hand the open disagreement to the user, both sides in 2-3 lines each. An ended budget is not approval.
 
 ## 6. Merge
 

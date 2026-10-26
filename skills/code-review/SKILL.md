@@ -99,6 +99,16 @@ Present the two reports under `## Standards` and `## Spec` headings, verbatim or
 
 End with a one-line summary: total findings per axis, and the worst issue _within each axis_ (if any). Don't pick a single winner across axes: that's the reranking the separation exists to prevent.
 
+### 7. Fix round
+
+Grade each finding yourself: **blocker** (the intended case is wrong), **should** (a real bug callers will hit, within the spec), **nit** (other paths, rare cases, small perf costs, extra compatibility, style). Another path or a rare case is a nit whatever label the sub-agent gave it.
+
+- Fix blockers and shoulds with the smallest change, preferring the one that deletes or narrows code. A rewrite keeps every guard, `?.`, default and `try` of the old code unless `git log -S` shows its reason is gone.
+- Decline nits in one line each and list them as follow-ups in the final report.
+- Then compare `git diff --shortstat` against the reviewed head's. If the fixes grew the diff past what the findings need, cut first.
+
+The budget is one re-check. When a fix changed behaviour code, rerun the axis that raised it on the fix diff only (`git diff <reviewed-head>..HEAD`) with the original brief, told to check the changed code and the open findings. Fixes that touch only comments, docs, or formatting need none. Whatever the re-check leaves open goes to the user, with both sides in 2-3 lines.
+
 ## Why two axes
 
 A change can pass one axis and fail the other:
