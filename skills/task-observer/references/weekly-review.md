@@ -276,10 +276,9 @@ the observation `open`, with the staged path in a `reference:` note, so
 the next review's presence check closes it once the copy is installed
 rather than re-applying it. What stays escalated is the decision the run
 cannot make — cut a branch or ship from main, and when — never the
-mechanical work. (Observed: read literally, the old proviso would have
-returned a maintainer's own "priority" decision to him as a question and
-left the published skill in the shape he had decided against for another
-cycle; the run staged it anyway, and this paragraph makes that the rule.)
+mechanical work. (Escalating it would return the maintainer's own decision to him as a
+question and leave the published skill in the shape he decided against for
+another cycle.)
 
 Escalate one DECISION per cluster, never the same decision twice — cluster
 the OPEN entries before the escalation list is written (Step 3), and list
@@ -430,9 +429,9 @@ Both list files are overwritten by the next review's Steps 1 and 6 and
 need no cleanup at Step 7; a Step 6 run against a list Step 1 failed to
 refresh shows as a delta of dozens, not as a quiet pass.
 
-**Duplicate-id check — nothing else in the process looks for one.** The id
-rules say a collision is "left for the next review to renumber", and until
-now no review step went looking, so a duplicate could sit indefinitely.
+**Duplicate-id check — nothing else in the process looks for one.** A
+collision that its writer did not fix on discovery stays until a review
+finds it, so without this check a duplicate can sit indefinitely.
 Worse, it is silently destructive to the review itself: any pass that
 merges per-entry results **keyed by id** — the common shape when the
 reading is fanned out to helpers — collapses the pair into one, and the

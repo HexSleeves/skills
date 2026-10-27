@@ -1,6 +1,6 @@
 # Authoring contract
 
-Read this reference only after the Fast authoring path calls for more detail. The schemas and examples remain authoritative.
+Read this reference only after the Native diagram authoring path calls for more detail. The schemas and examples remain authoritative.
 
 ## Composition repair
 
@@ -313,8 +313,8 @@ Where the source's ownership and explicit geometry permit, redistribute steps
 across logical columns and meaningful lanes, keeping the main path monotonic.
 Preserve every required node, relationship, label and semantic check. If ownership
 or absolute pins prevent reflow, report that constraint instead of merging lanes
-or moving pins automatically. Validate the changed JSON, deliver a fresh HTML,
-then rerun browser checks and inspect the first screen; a static pass alone does
+or moving pins automatically. Rerun the complete `finalize` on the changed JSON,
+then inspect the first screen; a static pass alone does
 not settle viewport fit. These are repair directions, not guaranteed coordinates.
 
 ### Sequence
@@ -545,7 +545,8 @@ or naming alone.
 
 Declare `meta.repository.url` and one full 40-character `revision`, then attach
 `sources` to the mode's node collection (Architecture `components[]`, Workflow
-and Data Flow `nodes[]`, Sequence `participants[]`, Lifecycle `states[]`) with
+and Data Flow `nodes[]`, Sequence `participants[]`, Lifecycle `states[]`, ERD `entities[]`, Tree `nodes[]`, Class `types[]`,
+Timeline `events[]`, Waterfall `spans[]`) with
 repository-relative `path`, optional `line`, `end_line`, and `label`.
 Verification reads blobs at that commit, independently of working-tree edits.
 Verification ignores local Git replacement refs, including those selected by

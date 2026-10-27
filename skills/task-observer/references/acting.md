@@ -8,7 +8,7 @@ keeps only the short form; this file holds the full rules.
 
 Default: at end of session, as a grouped summary — improvements grouped by
 skill, new-skill candidates listed separately; for each, one sentence plus
-suggested type; ask which to act on. Surface earlier when an observation
+suggested type; say each is logged for the next review. Surface earlier when an observation
 needs user input to be complete, when a skill is actively producing wrong
 output, or when observations cluster on one skill.
 

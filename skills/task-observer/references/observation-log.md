@@ -143,8 +143,7 @@ This is the same shape the skill already solved for archival, and solved
 the same way — a duty written as prose next to another action inherits none
 of that action's enforcement, so the archival sweep was folded *into* the
 id-derivation snippet ("If a step must always accompany a tool call, put it
-inside the same command", Archival on Write). Step 1's creation is the
-remaining place where that reasoning had not been applied.
+inside the same command", Archival on Write).
 
 ## Frontmatter fields
 
@@ -1096,15 +1095,14 @@ same slug resolve to one identical path, where the second writer would
 silently replace the first. So the snippet creates the file under
 `noclobber` — write the body only after that create succeeds.
 
-**The collision guard is keyed on the id prefix, not on the path.** An
-earlier form tested `[ -e "$f" ]` — the full path, slug included — and
-could not catch the collision that actually happens: two writers deriving
+**The collision guard is keyed on the id prefix, not on the path.** A
+guard on the full path (`[ -e "$f" ]`) cannot catch the collision that actually happens: two writers deriving
 the same number with *different* slugs produce two different paths, both
 creates succeed, and two files share one id with no error anywhere. A
 guard has to be keyed on the invariant it protects; noclobber protects a
 path, the invariant is a unique number, and a guard on the path passes
 every violation of the number that uses a different slug — which is all
-of them. So the guard now asks whether any file with the derived prefix
+of them. So the guard asks whether any file with the derived prefix
 exists in `observation-log/` or `archive/` (`find … -name 'NNNN-*.md'`,
 never a bare glob), and halts if one does. It fires only when the
 derivation is stale — a correct max-of-three cannot produce a number that
@@ -1148,19 +1146,14 @@ guard is the backstop for the harness where it cannot.
 
 ### Resolve each id at its own write time
 
-**Every write, not just batched ones.** An earlier version of this rule
-opened "when logging more than one observation in a session that may
-overlap a scheduled review or another writer" — two scope conditions, and a
-single write in a session that looks like it overlaps nothing satisfies
-neither. The reported failure was exactly that shape: one observation, the
-snippet run in the same shell call printing `next_id=92`, and the heredoc
-that followed carrying `91` in both the filename and the `id:` field. A
-parallel session had written `0091` in between. The scope conditions are
-gone: run the snippet before **each** write, including the first and only
-one of a session.
+**Every write, not just batched ones.** Run the snippet before **each**
+write, including the first and only one of a session: a single write in a
+session that seems to overlap nothing still races a parallel writer
+(observed: the snippet printed `next_id=92`, the heredoc that followed
+carried `91` in the filename and `id:`, and a parallel session had written
+`0091` in between).
 
-**Write the value the snippet printed.** This is the step the rule never
-stated, and it is where that failure actually happened — not in deriving
+**Write the value the snippet printed.** That failure happened — not in deriving
 the id, which was correct, but in the gap between deriving it and typing it.
 The number the snippet prints goes into the filename **and** the `id:`
 field, copied, not retyped from memory of what you expected it to be. If

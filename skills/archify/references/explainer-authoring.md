@@ -256,10 +256,10 @@ Prefer a specific question as each panel title. `{#id}` gives a stable ID for li
 ## Delivery
 
 ```sh
-node archify/bin/archify.mjs finalize explainer candidate.archify.md answer.html --json
+node bin/archify.mjs finalize explainer candidate.archify.md answer.html --json
 ```
 
-After a pass, reply in two or three lines: the conclusion, then a Markdown link to the page with a descriptive title. Do not list gates. When the user asked for this page and no `[archify explainer: ...]` rules line is in context, end with the one-line mode offer from the Skill's Output section.
+After a pass, reply with the conclusion, then a Markdown link to the page with a descriptive title. Do not list gates. When the user asked for this page and no `[archify explainer: ...]` rules line is in context, end with the one-line mode offer from the Skill's Output section.
 
 Add `--repo-root <path>` when the draft uses `@code`. Finalize validates, atomically delivers and checks the HTML; it does not launch a browser, and its receipt records the browser gate as not run. A failure names the line, component, reason and a repair example; fix the draft and rerun to the same output path.
 
@@ -268,7 +268,7 @@ Writing warnings apply the [Writing](#writing) rules: sentences over 50 Chinese 
 ## Panel replacement
 
 ```sh
-node archify/bin/archify.mjs patch explainer answer.html next replacement.md revised.html --json
+node bin/archify.mjs patch explainer answer.html next replacement.md revised.html --json
 ```
 
 The replacement holds one `##` panel with the same stable ID; untouched content and frozen assets are preserved. Rerun finalize on the full draft when changing shared sources, the conclusion or document-wide structure.

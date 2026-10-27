@@ -299,8 +299,7 @@ therefore do not launch a browser. It loads the artifact only after current
 provenance is verified. The browser gate retains every viewport, theme, and
 stability check; the browser closes at completion or a browser-stage failure.
 Its full stage receipt records `execution: "in-process"` and the equivalent
-standalone `command` for replay. Chrome startup no longer overlaps the earlier
-stages, so successful runs may take slightly longer. This avoids unnecessary
+standalone `command` for replay. Starting Chrome late avoids unnecessary
 startup on invalid candidates; it does not fix host sandbox restrictions on
 Chrome startup or relax a browser gate.
 

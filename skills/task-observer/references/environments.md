@@ -1369,8 +1369,8 @@ rather than as the whole set.
 
 Observations before and after compaction are written as separate files
 under the same `observation-log/` directory, each with its own id (the id
-counter is derived from existing filenames, so it continues seamlessly
-across the compaction boundary). A resumed session's opening message may
+is derived at write time from the active and archived files and
+`.id-floor`, so it continues across the compaction boundary). A resumed session's opening message may
 not match the description triggers, which is one reason the structural
 trigger exists — and one reason the protocol re-runs by rule rather than
 by whichever trigger happens to fire.

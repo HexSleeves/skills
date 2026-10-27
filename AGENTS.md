@@ -4,7 +4,7 @@ Guidance for AI agents working in this repository. (`CLAUDE.md` is a symlink to 
 
 ## What this is
 
-A personal library of **agent skills** consumed via [`npx skills`](https://github.com/vercel-labs/skills). There is no application code and no build, lint, or test step. Each skill is a directory under `skills/` holding a `SKILL.md` (YAML frontmatter + markdown instructions) plus whatever support files it needs. Work here is authoring and editing those documents; skills are auto-discovered on push, so there is nothing to build or deploy.
+A personal library of **agent skills** consumed via [`npx skills`](https://github.com/vercel-labs/skills). There is no application code and no build or lint step. The only code is the scripts some skills bundle; `skills/merged/scripts/test_scripts.sh` tests merged's scripts, and `skills/task-observer/scripts/validate-skill-bundle.py` checks a staged skill directory. Each skill is a directory under `skills/` holding a `SKILL.md` (YAML frontmatter + markdown instructions) plus whatever support files it needs. Work here is authoring and editing those documents; skills are auto-discovered on push, so there is nothing to build or deploy.
 
 ## Commands
 
