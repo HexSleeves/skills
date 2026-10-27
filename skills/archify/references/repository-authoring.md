@@ -22,7 +22,14 @@ fact has supporting source evidence.
    against committed bytes at the pinned revision, not working-tree edits:
    inspect a clean checkout at that revision for any cited changed path. Do not
    present uncommitted bytes as evidence for `HEAD`; `local-only` does not record
-   a verifiable snapshot of those bytes.
+   a verifiable snapshot of those bytes. When the diagram will be committed or
+   shared and the local origin is an SSH host alias from this machine's ssh
+   config, record the forge's canonical URL (for GitHub,
+   `https://github.com/<org>/<repo>.git` with `provider: "github"`) instead:
+   an alias host makes every citation plain text and fails `origin-mismatch` on
+   any other clone. Render from a clone whose origin names the forge host; a
+   global `url.insteadOf` rule can rewrite that origin back to the alias, so
+   check `git remote get-url origin` before `finalize`.
 
 2. **Map the slice.** Use project instructions, manifests, entry points,
    registrations, and deployment configuration to locate candidate runtime

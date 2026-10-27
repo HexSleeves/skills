@@ -177,6 +177,14 @@ honor its STOP conditions, and update your row when done.
 
 Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJECTED (with one-line rationale — finding fixed independently or approach abandoned)
 
+## Small fixes, no plan needed
+
+| Fix | Status |
+|-----|--------|
+| ... | TODO   |
+
+Status values are the same as above, with DONE recorded as "DONE in #N". The executor updates the row when the PR opens. Before dispatching any entry here or in the table above, `git log -S` a token from the fix (or search merged PRs) on `origin/<default>`.
+
 ## Dependency notes
 
 - 002 requires 001 because <reason>.
@@ -193,5 +201,9 @@ Status values: TODO | IN PROGRESS | DONE | BLOCKED (with one-line reason) | REJE
 - Does every step name exact files and symbols, not "the relevant module"?
 - Are the STOP conditions specific to this plan's actual risks, not boilerplate?
 - Would a reviewer reading only "Why this matters" + "Done criteria" understand what they're approving?
+- When a step sets a size, timeout or quota against a shared limit (a browser keepalive budget, a queue visibility window, a connection pool, a rate limit), does the plan list every consumer of that limit on the path with its worst case and show the sum fits?
+- When a step says "only this one existing assertion may change", is that assertion named from a grep of every assertion on the changed value, not from the exemplar alone?
+- When a step sets a number from vendor behavior (a metric's semantics, a retry count, a timeout default), does it cite the vendor doc or installed package, not a repo comment?
+- When an operator step's rationale depends on code the same plan changes, is the rationale stated for the post-change code, or the step marked to re-derive after the code lands?
 - No secret values anywhere in the file — locations and credential types only.
 - "Planned at" SHA is filled in and the in-scope paths in the drift check match the Scope section.

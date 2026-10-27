@@ -16,11 +16,14 @@
 # Prints tab-separated rows:
 #   default   <branch>  <short sha of origin/branch>  gh=<0|1> local=<ahead N, behind M|missing>
 #   worktree  <path>    delete|keep         <reason>  <branch or (detached)>
-#   branch    <name>    delete|switch|keep  <reason>  <worktree path or ->
+#   branch    <name>    delete|switch|review|keep  <reason>  <worktree path or ->
 #   stash     <ref>     keep                <reason>
 #
 # switch: the branch is done, but the main checkout has it checked out. Switch
 # that checkout to the default branch, then delete the branch.
+# review: the branch stays, but every one of its commits has a subject that
+# also appears on the default branch, so it may have been squash- or
+# rebase-merged under new hashes. A person decides; nothing deletes it.
 set -euo pipefail
 
 canon() { (cd "$1" 2>/dev/null && pwd -P) || printf '%s\n' "$1"; }
@@ -63,6 +66,7 @@ fi
 def=${def:-main}
 base=origin/$def
 base_tree=$(g rev-parse "$base^{tree}")
+base_tip=$(g rev-parse "$base")
 local_state=missing
 if g rev-parse --verify --quiet "refs/heads/$def" >/dev/null; then
   read -r ahead behind < <(g rev-list --left-right --count "$def...$base")
@@ -137,10 +141,12 @@ absorbed_reason() {
 # Prints why a branch is done, or fails. Squash merges leave the branch's own
 # commits outside $base, so "done" means GitHub merged this exact tip, or the
 # branch's changes are already in $base. Content alone is not enough: a branch
-# just cut for new work has nothing of its own either, so that case also needs
-# a merged PR or an upstream the remote deleted. Two cases need no such
-# evidence: a sub-branch absorbed into a squash-merged batch PR, and a branch
-# the Agent tool's worktree isolation left at an ancestor of $base.
+# with commits whose changes merge into $base as a no-op needs a merged PR or
+# an upstream the remote deleted. A branch whose tip $base has moved past (an
+# ancestor of $base, but not its tip) needs no evidence: nothing on it is new.
+# A branch at $base's tip may be just cut for new work, so it stays, unless
+# the Agent tool's worktree isolation left it. A sub-branch absorbed into a
+# squash-merged batch PR also needs no evidence.
 done_reason() {
   local b=$1 tip=$2 track=$3 wt=$4 pr='' evidence='' t
   if [ "$gh_ok" = 1 ]; then
@@ -167,14 +173,33 @@ done_reason() {
         echo "harness branch at an ancestor of $def, no worktree"; return
       fi ;;
   esac
+  if [ "$tip" != "$base_tip" ] && g merge-base --is-ancestor "$tip" "$base"; then
+    echo "merged (ancestor of $def, which has moved past it)"; return
+  fi
   absorbed_reason "$tip"
+}
+
+# Prints the matching commits when every commit on the branch has a subject
+# identical to one on $base in the last 90 days, or fails. A match by subject
+# is not proof of a merge, so the caller flags the branch for review.
+subject_reason() {
+  local tip=$1 s sha shas=''
+  [ "$(g rev-list --count "$base..$tip")" -gt 0 ] || return 1
+  [ -e "$tmp/base_subjects" ] ||
+    g log --since='90 days ago' --no-merges --format="%h$sep%s" "$base" >"$tmp/base_subjects"
+  while IFS= read -r s; do
+    sha=$(awk -F "$sep" -v s="$s" '$2 == s { print $1; exit }' "$tmp/base_subjects")
+    [ -n "$sha" ] || return 1
+    case " $shas " in *" $sha "*) ;; *) shas="${shas:+$shas }$sha" ;; esac
+  done < <(g log --format=%s "$base..$tip")
+  echo "every commit's subject is on $def (as $shas); may be squash- or rebase-merged, check before deleting"
 }
 
 keep_reason() {
   local tip=$1 track=$2 n
   n=$(g rev-list --count "$base..$tip")
   if [ "$n" = 0 ]; then
-    echo "no commits of its own and no sign of a merge; may be new work"
+    echo "at the tip of $base with no commits of its own; may be new work"
   elif [ "$track" = "[gone]" ]; then
     echo "upstream deleted, but $n commits are not in $base"
   else
@@ -188,6 +213,7 @@ g for-each-ref --format="$fmt" refs/heads | while IFS=$sep read -r b tip wt trac
   [ "$b" = "$def" ] && continue
   if reason=$(long_lived "$b"); then v=keep
   elif reason=$(done_reason "$b" "$tip" "$track" "$wt"); then v=delete
+  elif reason=$(subject_reason "$tip"); then v=review
   else v=keep; reason=$(keep_reason "$tip" "$track")
   fi
   printf '%s\n' "$b$sep$tip$sep$v$sep$reason$sep${wt:--}" >>"$tmp/branches"
@@ -212,20 +238,38 @@ verdict_of() { awk -F "$sep" -v b="$1" '$1 == b { print $3 }' "$tmp/branches"; }
 t3_ok=0
 if [ -r "$t3_db" ] && command -v sqlite3 >/dev/null &&
    sqlite3 -cmd '.timeout 5000' -separator "$sep" "file:$t3_db?mode=ro" \
-     "select json_extract(payload_json, '\$.worktreePath'), replace(title, char(9), ' ')
+     "select json_extract(payload_json, '\$.worktreePath'), replace(title, char(9), ' '),
+             json_extract(payload_json, '\$.lineage.parentThreadId')
       from orchestration_v2_projection_threads
       where archived_at is null and deleted_at is null
         and json_extract(payload_json, '\$.worktreePath') is not null" >"$tmp/t3_bound" 2>/dev/null; then
   t3_ok=1
 fi
+# Names every unarchived T3 thread bound to a worktree, since archiving a
+# parent thread leaves its subagent threads bound to the same worktree.
+t3_threads() {
+  awk -F "$sep" -v p="$1" -v q="$2" '
+    $1 == p || $1 == q {
+      n++; t = substr($2, 1, 40); if (t == "") t = "untitled"
+      if (n <= 3) ts = ts (n > 1 ? ", " : "") "\"" t "\""
+      if ($3 != "" && !seen[$3]++) ps = ps (ps == "" ? "" : ", ") $3
+    }
+    END {
+      if (!n) exit
+      pre = ps == "" ? "" : "subagents of " ps "; "
+      if (n == 1) { print "T3 " ts " (" pre "archive it to free this worktree)"; exit }
+      print "T3, " n " unarchived threads: " ts (n > 3 ? " (+" n - 3 " more)" : "") \
+        "; " pre "archive all " n " to free this worktree"
+    }' "$tmp/t3_bound"
+}
 bound_reason() {
   local c title
   c=$(canon "$1")
   if [ "$c" = "$caller_wt" ]; then echo "bound to a thread: this session runs in it"; return; fi
   if grep -qxF -- "$c" <<<"$keep_wts"; then echo "bound to a thread: --keep-worktree"; return; fi
   if [ "$t3_ok" = 1 ]; then
-    title=$(awk -F "$sep" -v p="$c" -v q="$1" '$1 == p || $1 == q { t = substr($2, 1, 60); print (t == "" ? "untitled" : t); exit }' "$tmp/t3_bound")
-    if [ -n "$title" ]; then echo "bound to a thread: T3 \"$title\" (archive it to free this worktree)"; return; fi
+    title=$(t3_threads "$c" "$1")
+    if [ -n "$title" ]; then echo "bound to a thread: $title"; return; fi
   else
     case $c/ in "$t3_root"/*) echo "bound to a thread: T3 worktree, and T3's bindings could not be read"; return ;; esac
   fi
@@ -264,7 +308,7 @@ touch "$tmp/final"
 while IFS=$sep read -r b tip v reason wt; do
   if [ "$v" = keep ]; then
     while IFS=$sep read -r d dtip dv _ _; do
-      [ "$dv" = keep ] && continue
+      case $dv in keep | review) continue ;; esac
       if g merge-base --is-ancestor "$dtip" "$tip" && ! g merge-base --is-ancestor "$dtip" "$base"; then
         reason="$reason; built on done branch $d: git rebase --onto $base ${dtip:0:12} $b"
       fi
@@ -276,7 +320,7 @@ done <"$tmp/final"
 # Stashes are shared by every worktree; report the ones from done branches.
 g stash list --format="%gd$sep%gs" | while IFS=$sep read -r ref subject; do
   while IFS=$sep read -r b _ v _ _; do
-    [ "$v" = keep ] && continue
+    case $v in keep | review) continue ;; esac
     case $subject in
       "WIP on $b:"* | "On $b:"*) printf 'stash\t%s\tkeep\tmade on done branch %s; check before dropping\n' "$ref" "$b" ;;
     esac

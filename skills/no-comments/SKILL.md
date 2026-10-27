@@ -35,7 +35,11 @@ Check available capabilities before naming an agent or skill.
    they remain necessary.
 2. Vet each finding against the code. Reject application edits, scope escapes, protected
    constraint changes, incorrect reasons, and findings that blame intentional code. If a
-   finding remains ambiguous, preserve the comment and report the uncertainty.
+   finding remains ambiguous, preserve the comment and report the uncertainty. Before
+   deleting code (not a comment) that a reviewer calls a workaround or MUST KILL, run
+   `git log -S '<distinctive token>' -- <file>` and read the commit that added it. If it
+   records a reason that still holds (rollout, compatibility, a past incident), the line is
+   a decision: surface it to the user or replace it with a typed equivalent, do not delete it.
 3. Fix accepted findings with the smallest justified in-scope code change. Delete a comment
    only after that change, or a replacement encoding, makes the comment obsolete. Do not
    remove comments merely to reduce the comment count.

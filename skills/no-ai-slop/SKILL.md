@@ -15,7 +15,7 @@ You are a sharp human editor. Preserve the user's point and personal voice while
 
 **Detect.** The user asks whether a piece is AI slop, or asks to audit, scan, or flag a draft without rewriting. Name each pattern from this skill that appears, quote the line, and give the fix in a few words. Do not rewrite, score the draft, or guess whether AI wrote it. AI detectors guess. Named patterns are evidence the user can check. Offer to edit the draft after.
 
-**Gate.** The caller runs this as a pre-push or claims check on text that describes a change: a PR body, commit message, ADR, or release note. Check every claim in the whole text against the diff each pass, not only the sentences that changed, so one pass finds them all. Then scan it for the patterns below. Return findings, not a rewritten draft, each tagged with one severity:
+**Gate.** The caller runs this as a pre-push or claims check on text that describes a change: a PR body, commit message, ADR, or release note. Check every claim in the whole text against the diff each pass, not only the sentences that changed, so one pass finds them all. For every CI job the text names, read the default branch's newest run (`gh run list --branch <default> --workflow <file> --limit 3`, then the jobs of the newest run) and block on any claim that run contradicts: a workflow file shows intent, the newest run shows what the job does today. Then scan it for the patterns below. Return findings, not a rewritten draft, each tagged with one severity:
 
 - `BLOCKING`: a claim the diff contradicts or does not support, a misleading statement, or a broken rule the repo or the caller has written down (quote the rule).
 - `OPTIONAL`: wording, rhythm, and any pattern from this skill on a sentence that is accurate.

@@ -45,9 +45,13 @@ FILES CHANGED: list
 NOTES: anything the reviewer should know (deviations, surprises, judgment calls)
 ```
 
+Before dispatch, check whether the main checkout can reach the package registry. If not, give the executor the offline route explicitly: copy `node_modules` from the main checkout with `cp -a --reflink=auto`, use an offline install only for a lockfile change, and treat a failure as the plan's registry STOP condition. Name the shared-config writes an install's lifecycle scripts can make: a `prepare` script can set `core.hooksPath` in the main repo's `.git/config`, which every worktree shares.
+
+Where the worktree links or copies `node_modules`, the brief also says which checks are trustworthy there. Run `tsc -p <config> --noEmit` once per referenced tsconfig (no build info; a solution tsconfig with `files: []` checks nothing), or point `tsBuildInfoFile` outside `node_modules`, instead of `tsc -b`. Treat incremental or cached output from a shared dependency dir as unproven until a clean build (the CI image) confirms it. A workspace package linked through the shared dir resolves to the main checkout's copy, so link that entry to the worktree's own package. A rebase onto a main with dependency changes invalidates a linked install.
+
 ### Review (the advisor's real job here)
 
-Note on fresh worktrees: they share git history but not `node_modules` or build artifacts — the executor must install dependencies first, and check tooling that resolves from `dist/` may need one build even though the plan's command table (recon'd in the main tree) didn't mention it. Expect this; it isn't a deviation.
+Note on fresh worktrees: they share git history but not `node_modules` or build artifacts — the executor must install dependencies first (offline route under Dispatch when the registry is unreachable), and check tooling that resolves from `dist/` may need one build even though the plan's command table (recon'd in the main tree) didn't mention it. Expect this; it isn't a deviation.
 
 Review like a tech lead reviewing a PR against the spec — never fix anything yourself:
 
@@ -55,6 +59,7 @@ Review like a tech lead reviewing a PR against the spec — never fix anything y
 2. **Scope compliance**: `git -C <worktree> diff --stat` against the plan's in-scope list. Any file outside scope fails review, full stop.
 3. **Read the full diff.** Judge it against "Why this matters" (does it solve the actual problem?) and the repo conventions named in the plan (does it look like the rest of the codebase?).
 4. **Audit the new tests.** Executors game criteria — a test that asserts nothing meaningful passes `pnpm test` and proves nothing. Read what the tests assert.
+5. **Vary one incidental condition.** Rerun at least one done criterion under a condition the executor's environment supplied for free (fast vs slow network, warm vs cold cache, local vs remote origin), not only the executor's exact commands. A green run proves the change under the conditions the run happened to have. When a review specifies a fixture commit, read the fixture's relevant files before dispatching the check.
 
 ### Verdict
 

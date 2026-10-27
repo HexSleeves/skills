@@ -11,3 +11,5 @@ If `source` is `cache`, say that a previous check at `checkedAt` found the updat
 When the user explicitly asks to pause or stop this reminder, run `node scripts/check-update.mjs --snooze "<eventKey>"` (seven days) or `--ignore "<eventKey>"` (this exact release only) from the Skill directory with the receipt's `update.eventKey`, then report the returned status. Never run them on your own initiative; `--ack` is a no-op. These commands do not install an update, and a newer release notifies again.
 
 The notice is information, not permission. Keep the installed version unchanged. This workflow never downloads, installs, or executes an update, and silence is never consent.
+
+This copy may be a fork rather than upstream (installed from `HexSleeves/skills`), in which case the notice's upstream release is not what `just skills-update` installs. The update path is to sync upstream into the fork and push, then run `just skills-update`; the fork's edits to reapply are listed in `metadata.upstream` plus a short list kept in the fork. When an update changes a schema with no migration command, say so in the final-response line.

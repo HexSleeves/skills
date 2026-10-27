@@ -8,7 +8,7 @@ The PR has merged. Leave the repo on an up-to-date default branch, with every fi
 
 Other agents may share this repo, so "clean up everything" means everything that is provably finished. A branch or worktree that might still hold someone's work stays, and the report says why. A worktree a thread is bound to is still in use: removing it kills that thread.
 
-On Adobe repos (`github.com-adobe` remotes, or orgs such as Adobe-DesignTechnology, Adobe-Prototype, OneAdobe), every `gh` call and every script below that calls `gh` runs inside `~/Projects/adobe/scripts/with-adobe-route --wait -- ...`.
+On Adobe repos (`github.com-adobe` remotes, or orgs such as Adobe-DesignTechnology, Adobe-Prototype, OneAdobe), every `git` command that reaches the remote (`fetch`, `pull`, `push`), every `gh` call, and every script below that calls either runs inside `~/Projects/adobe/scripts/with-adobe-route --wait -- ...`. Batch a section's commands into one `sh -c '...'` so they share one tunnel, as step 3 shows.
 
 ## Watching for the merge
 
@@ -46,11 +46,21 @@ Running it from the session's directory is what lets it keep the worktree this s
 
 It fetches with `--prune` and prints one row per branch, worktree and relevant stash, each with a verdict and a reason. Read every row before acting on any of them.
 
-Use the script's verdicts as the whole delete list, and add nothing to it on judgment. Squash merges, which most of these repos use, leave branches that `git branch --merged` reports as unmerged, and a freshly cut branch looks merged to it. The script marks a branch `delete` only when GitHub merged that exact tip, or when the branch's changes are already in the default branch and the merge left evidence (a merged PR, or an upstream the remote deleted). Two more cases count as finished. A sub-branch cherry-picked into a batch PR is absorbed when every one of its commits has the patch-id of a commit on a merged PR's head, and that PR's squash commit has the head's tree; one unmatched commit keeps it. A `worktree-agent-*` branch left by the Agent tool's worktree isolation is finished when it points at an ancestor of the default branch and no worktree uses it. Long-lived branches (`dev`, `develop`, `stage`, `staging`, `main`, `master`, `release/*`, and the base of any open PR) always stay. A worktree is marked `delete` only when it is clean, unlocked, and bound to no thread.
+Use the script's verdicts as the whole delete list, and add nothing to it on judgment. Squash merges, which most of these repos use, leave branches that `git branch --merged` reports as unmerged, and a freshly cut branch looks merged to it. The script marks a branch `delete` only when GitHub merged that exact tip, when its tip is an ancestor of the default branch that the default has moved past, or when the branch's changes are already in the default branch and the merge left evidence (a merged PR, or an upstream the remote deleted). A branch at the default branch's exact tip stays, since it may be freshly cut for new work. A branch whose every commit only shares its subject with a commit on the default branch is marked `review`: it may have been squash- or rebase-merged under new hashes, but a matching subject is not proof, so it is never deleted. Report it under `Kept` and let the user decide. Two more cases count as finished. A sub-branch cherry-picked into a batch PR is absorbed when every one of its commits has the patch-id of a commit on a merged PR's head, and that PR's squash commit has the head's tree; one unmatched commit keeps it. A `worktree-agent-*` branch left by the Agent tool's worktree isolation is finished when it points at an ancestor of the default branch and no worktree uses it. Long-lived branches (`dev`, `develop`, `stage`, `staging`, `main`, `master`, `release/*`, and the base of any open PR) always stay. A worktree is marked `delete` only when it is clean, unlocked, and bound to no thread.
 
 ## 3. Clean up from the main checkout, in this order
 
-Run every command from here on in the main checkout. Any step that writes to whatever the main checkout has checked out (the pull, the install) first checks `git branch --show-current` against the branch it means to update. When they differ, the checkout holds a branch the script kept, so use a form that names the target instead (`git fetch . origin/<default>:<default>` fast-forwards the default without touching the checkout and refuses anything else), or skip the step, and say in the report which step changed and why.
+Run every command from here on in the main checkout. On an Adobe repo, wrap steps 2 to 5 in one route call, so no step that reaches the remote runs bare and the whole sequence shares one tunnel:
+
+```bash
+~/Projects/adobe/scripts/with-adobe-route --wait -- sh -c '
+  git switch <default> &&
+  git pull --ff-only &&
+  git branch -D <names> &&
+  bash <skill dir>/scripts/delete_head.sh <pr> --repo <owner/repo>'
+```
+
+Leave out `git switch` when no row says `switch`, and use the `git fetch . origin/<default>:<default>` form below in place of the pull when it applies. Any step that writes to whatever the main checkout has checked out (the pull, the install) first checks `git branch --show-current` against the branch it means to update. When they differ, the checkout holds a branch the script kept, so use a form that names the target instead (`git fetch . origin/<default>:<default>` fast-forwards the default without touching the checkout and refuses anything else), or skip the step, and say in the report which step changed and why.
 
 1. **Worktrees marked `delete`:** run `git worktree remove <path>` without `--force`. If git refuses, something changed after the scan: keep that worktree and its branch, and report it. A row saying "directory is gone" needs `git worktree prune` once instead. Rows saying "bound to a thread" stay, including this session's own worktree.
 2. **A branch marked `switch`:** in the main checkout, run `git switch <default>`. If no local default branch exists, this creates it from `origin`.
@@ -81,4 +91,4 @@ Stashes: <refs, or none>
 Next: <named next item, or the question>
 ```
 
-A kept branch that the script says was built on a finished one needs the `git rebase --onto` command it printed. Give the user that command, and run it only if they ask, because another session may have that branch checked out. A worktree kept because a T3 thread is bound to it goes once the user archives that thread; say so in its `Kept` line.
+A kept branch that the script says was built on a finished one needs the `git rebase --onto` command it printed. Give the user that command, and run it only if they ask, because another session may have that branch checked out. A worktree kept because T3 threads are bound to it goes once the user archives every thread the row names; say so in its `Kept` line. Archiving a parent thread leaves its subagent threads (reviews, no-ai-slop and comment passes) bound to the same worktree, so the row gives the count of unarchived threads bound to it, up to three titles, and their parent ids; find them with `t3_thread_list includeSubagents:true`, filtered to `parentThreadId == <parent>`.

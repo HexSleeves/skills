@@ -65,6 +65,7 @@ npx skills add HexSleeves/skills -g
 
 ### Meta & skill authoring
 
+- **session-audit**: Mine your own local Claude Code session transcripts for friction, tool, skill and subagent usage, with secrets masked and output kept outside the checkout.
 - **handoff** — Compact the current conversation into a handoff document for another agent.
 - **task-observer**: Log skill-improvement observations during work and review them into staged skill updates. Fork of rebelytics/one-skill-to-rule-them-all (CC BY 4.0).
 

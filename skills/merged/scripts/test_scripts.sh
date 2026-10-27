@@ -89,7 +89,25 @@ finished() {
   q "$work/main" push origin --delete "$1"
   q "$work/main" switch main
 }
-for b in feat-a dev release/1.0 feat-base wt-a wt-b wt-c wt-d wt-e wt-f; do finished "$b"; done
+for b in feat-a dev release/1.0 feat-base wt-a wt-b wt-c wt-d wt-e wt-f wt-g; do finished "$b"; done
+# Local-only branches with no merge evidence. anc sits at init, which origin/main
+# has moved past. sq and sq-part carry a commit whose subject origin/main then
+# gets under a new hash, as a squash or rebase merge leaves it; sq-part also has
+# a commit of its own. fresh sits at origin/main's tip.
+q "$work/main" branch anc main
+q "$work/main" switch -c sq origin/main
+echo widget >"$work/main/widget.txt"
+q "$work/main" add widget.txt
+q "$work/main" commit -m "Add widget"
+q "$work/main" switch -c sq-part
+q "$work/main" commit --allow-empty -m "Unmerged follow-up"
+q "$work/main" switch --detach origin/main
+q "$work/main" checkout sq -- widget.txt
+q "$work/main" -c user.name=merger commit -m "Add widget"
+q "$work/main" push origin HEAD:main
+q "$work/main" fetch origin
+q "$work/main" branch fresh origin/main
+q "$work/main" switch main
 t3=$work/home/.t3/worktrees/repo
 q "$work/main" worktree add "$work/wt-a" wt-a
 q "$work/main" worktree add "$work/wt-b" wt-b
@@ -97,14 +115,20 @@ q "$work/main" worktree add "$t3/wt-c" wt-c
 q "$work/main" worktree add "$work/wt-d" wt-d
 q "$work/main" worktree add "$t3/wt-e" wt-e
 q "$work/main" worktree add "$t3/wt-f" wt-f
+q "$work/main" worktree add "$t3/wt-g" wt-g
 # T3's state: wt-c is bound to a live thread, wt-f only to an archived one.
+# wt-g's parent thread is archived, but two of its three subagents are not.
 mkdir -p "$work/home/.t3/userdata"
 sqlite3 "$work/home/.t3/userdata/statev2.sqlite" "
   create table orchestration_v2_projection_threads (thread_id text, title text, archived_at text, deleted_at text, payload_json text);
   insert into orchestration_v2_projection_threads values
     ('t1', 'Fix #230', null, null, '{\"worktreePath\":\"$t3/wt-c\"}'),
     ('t2', 'Old', '2026-10-01', null, '{\"worktreePath\":\"$t3/wt-f\"}'),
-    ('t3', 'Root', null, null, '{\"worktreePath\":null}');"
+    ('t3', 'Root', null, null, '{\"worktreePath\":null}'),
+    ('p1', 'Ticket #378', '2026-10-02', null, '{\"worktreePath\":\"$t3/wt-g\"}'),
+    ('c1', 'Standards review', null, null, '{\"worktreePath\":\"$t3/wt-g\",\"lineage\":{\"parentThreadId\":\"p1\"}}'),
+    ('c2', 'no-ai-slop pass', null, null, '{\"worktreePath\":\"$t3/wt-g\",\"lineage\":{\"parentThreadId\":\"p1\"}}'),
+    ('c3', 'Comment Sicko', '2026-10-02', null, '{\"worktreePath\":\"$t3/wt-g\",\"lineage\":{\"parentThreadId\":\"p1\"}}');"
 
 reset
 out=$(cd "$work/wt-d" && HOME=$work/home GH_STUB=classify OPEN_BASES=feat-base bash "$here/classify.sh" --keep-worktree "$work/wt-b" "$work/main" 2>&1); rc=$?
@@ -119,6 +143,16 @@ check "classify: T3-bound worktree kept" 0 "$rc" "$out" $'^worktree\t[^\t]*/wt-c
 check "classify: unbound T3 worktree deleted" 0 "$rc" "$out" $'^worktree\t[^\t]*/wt-e\tdelete\t'
 check "classify: archived thread's worktree deleted" 0 "$rc" "$out" $'^worktree\t[^\t]*/wt-f\tdelete\t'
 check "classify: caller's worktree kept" 0 "$rc" "$out" $'^worktree\t[^\t]*/wt-d\tkeep\tbound to a thread: this session' $'^branch\twt-d\tkeep\t'
+check "classify: every unarchived thread bound to a worktree is named" 0 "$rc" "$out" \
+  $'^worktree\t[^\t]*/wt-g\tkeep\tbound to a thread: T3, 2 unarchived threads: "Standards review", "no-ai-slop pass"; subagents of p1; archive all 2' \
+  $'^branch\twt-g\tkeep\t'
+refute "classify: archived threads on a worktree are not named" "$(grep $'/wt-g\t' <<<"$out")" 'Comment Sicko|Ticket #378'
+check "classify: branch behind the default with no commits of its own deleted" 0 "$rc" "$out" $'^branch\tanc\tdelete\tmerged \(ancestor of main'
+check "classify: branch at the default's tip kept as new work" 0 "$rc" "$out" $'^branch\tfresh\tkeep\tat the tip of origin/main'
+check "classify: branch whose subjects are all on the default flagged for review" 0 "$rc" "$out" \
+  $'^branch\tsq\treview\tevery commit\'s subject is on main \(as [0-9a-f]+\)'
+check "classify: branch with one unmatched subject kept" 0 "$rc" "$out" $'^branch\tsq-part\tkeep\t2 commits not in origin/main'
+refute "classify: subject match never deletes" "$out" $'^branch\tsq(-part)?\tdelete'
 
 out=$(cd "$work/main" && HOME=$work/home GH_STUB=classify bash "$here/classify.sh" "$work/main" 2>&1); rc=$?
 check "classify: from the main checkout the other worktree is free" 0 "$rc" "$out" $'^worktree\t[^\t]*/wt-d\tdelete\t'
