@@ -35,8 +35,6 @@ Process signals and terminal state need one check outside the injected seam. A f
 
 Overlapping timers need a clock that holds them. When the behaviour is about two timers or retries pending at once (dedupe, coalescing, cancellation, joining an existing wait), the fake `sleep` keeps its resolvers until the test releases them. A clock that advances and resolves at once serialises timers and cannot show overlap. A test that is green at the red step is the signal: change the seam, not the assertion.
 
-When the shape of that interface is itself in question (how deep the module is, where the seam belongs, what the interface should expose), call the Skill tool with "codebase-design" for the vocabulary. It is the shared source of the module, interface, depth, seam, adapter, leverage and locality terms, and it is a reference to consult, not a session to run.
-
 ## Anti-patterns
 
 - **Implementation-coupled**: mocks internal collaborators, tests private methods, or verifies through a side channel (querying the database instead of using the interface). The tell: the test breaks when you refactor but behavior hasn't changed.

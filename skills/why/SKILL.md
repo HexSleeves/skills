@@ -1,7 +1,6 @@
 ---
 name: why
 description: "Use when asking why code or a system works the way it does, why a choice was made, or for regressions, postmortems, and data-backed thresholds."
-disable-model-invocation: true
 ---
 
 # Why

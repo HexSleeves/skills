@@ -35,7 +35,6 @@ npx skills add HexSleeves/skills -g
 ### Planning & discovery
 
 - **grilling**: Stress-test a plan before building via relentless questioning, one design-tree frontier question at a time. Rebuilt from mattpocock/skills (MIT).
-- **grill-me**: User-invoked only shortcut that starts a `grilling` session; the agent never fires it on its own. From mattpocock/skills (MIT).
 - **improve** — Read-only senior-advisor survey of a codebase that produces prioritized, self-contained implementation plans for other agents to execute.
 
 ### Execution & review
