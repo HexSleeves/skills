@@ -40,9 +40,11 @@ npx skills add HexSleeves/skills -g
 
 ### Execution & review
 
+- **blast-radius**: User-invoked only; finds what a change breaks outside its diff and proves the one fact it is safe because of by running real code. From cursor/plugins pstack (MIT).
 - **code-review**: Review a branch against the repo's standards and the originating spec, once per branch before the PR. Fork of mattpocock/skills (MIT).
 - **council**: Three reviewers from three model families (Opus, Muse, GPT Sol via Cursor) must each call a PR safe on its current head before it merges; the coordinator owns fixes and reconvenes the council within a 3-round budget, where nits never force a new round.
 - **create-verification-skill**: User-invoked only; generates a project-local skill plus feature map that teaches an agent to run, drive, and debug the app like a user. From cursor/plugins pstack (MIT).
+- **correct**: User-invoked only; turns a mistake agents keep repeating in a repo into one they can't make, preferring architecture, then types, then a lint, then a test, with docs last. From cursor/plugins pstack (MIT).
 - **diagnosing-bugs**: Diagnosis loop for hard bugs and performance regressions, built on a tight red-capable feedback loop before any hypothesis. Fork of mattpocock/skills (MIT).
 - **fix-merge-conflicts**: Resolves merge conflicts to a building, tested state, moving a change to its new home when the other side relocated the text. From cursor/plugins cursor-team-kit (MIT).
 - **implement-spec**: Implements a `to-spec` spec and its `to-tickets` task graph on one integration branch with parallel implementer subagents, bounded by the host and checked against the repo's CI target. Fork of mattpocock/skills (MIT).
