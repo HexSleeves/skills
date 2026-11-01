@@ -1529,6 +1529,11 @@ For a skill directory or bundle, the command is the environment's install
 call (the bundle presentation, the skills CLI, a copy of the directory),
 preceded by the same check over each live file the staged copy replaces.
 
+When the item changes code that has tests, such as a hook or script in a
+dotfiles repository, run that repository's whole test entry point before
+the install or the commit that carries it, and cite the entry point and its
+exit status. A pass count from a subset run is not "tests pass".
+
 The template:
 
 ```markdown

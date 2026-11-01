@@ -107,7 +107,7 @@ End with a one-line summary: total findings per axis, and the worst issue _withi
 
 ### 7. Fix round
 
-Grade each finding yourself: **blocker** (the intended case is wrong), **should** (a real bug callers will hit, within the spec), **nit** (other paths, rare cases, small perf costs, extra compatibility, style). Another path or a rare case is a nit whatever label the sub-agent gave it.
+Grade each finding yourself: **blocker** (the intended case is wrong), **should** (a real bug callers will hit, within the spec), **nit** (other paths, rare cases, small perf costs, extra compatibility, style). Another path or a rare case is a nit whatever label the sub-agent gave it. A finding's supporting rationale is a separate claim from its defect: check it against the cited code before you rely on it in a fix or relay it in a reply or PR body. A finding can be right while its explanation is wrong (a crash is real, but "no error boundary anywhere" can still be false).
 
 - Fix blockers and shoulds with the smallest change, preferring the one that deletes or narrows code. A rewrite keeps every guard, `?.`, default and `try` of the old code unless `git log -S` shows its reason is gone.
 - Decline nits in one line each and list them as follow-ups in the final report.

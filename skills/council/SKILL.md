@@ -76,11 +76,15 @@ If any member returned FIX or BLOCK on a confirmed blocker or should:
 - **FIX**: change only what the confirmed findings need, preferring the fix that deletes or narrows code over a new lock, cache, helper, or option. Run the repo's verification, and push through the repo's normal pre-push rules. The council does not exempt the change from them.
 - **Nits**: decline each in one line and list it as a follow-up. A round that leaves only nits, or fixes that touch only comments, docs, or formatting, needs no new round.
 
-Before reconvening, compare `git diff --shortstat <base>` with the first round's. If the fixes grew the diff, cut back to what the confirmed findings need first. Your job is to keep the scope where the change started.
+A recurring finding class counts as BLOCK. When two rounds in a row have patched the same check (a heuristic that misreads new inputs, a guard with new bypasses), the recurrence is evidence against the mechanism, not a list of cases to add. Ask the user whether to remove it, replace it with direct evidence, or accept its limits before another fix round.
 
-Then reconvene every member, not just the dissenters, because the fix changed the code they all approved. Each round is a new `delegate_task` call with a new `clientRequestId`. Its brief carries the original brief, the new head SHA, every prior finding, your response to each (fixed at commit X, or refuted because Y), and any objection still open. Never continue a round through `t3_thread_send` on a member's child thread.
+Your fixes are your own claims, even when a member suggested them. Before reconvening, check each one the way step 4 checks members' findings: read the primary doc for every API, schema field or library call a fix introduces, and grep for every file that carries a rule you changed so the fix lands in all of them. Then compare `git diff --shortstat <base>` with the first round's. If the fixes grew the diff, cut back to what the confirmed findings need first. Your job is to keep the scope where the change started.
 
-The budget is 3 rounds. Extend it to 5 only when the user asks, or when a confirmed blocker or should stays open on security, permissions, auth, data loss, or state and concurrency. When the budget ends without unanimous SAFE, stop and hand the open disagreement to the user, both sides in 2-3 lines each. An ended budget is not approval.
+A plan or spec ends here once a round returns no BLOCK and every member agrees the approach is sound. Fold the confirmed shoulds in and stop without reconvening: a spec can always be made more precise, and the implementation's own review sees those details.
+
+Otherwise reconvene every member, not just the dissenters, because the fix changed the code they all approved. Each round is a new `delegate_task` call with a new `clientRequestId`. Its brief carries the original brief, the rendered result (the new head SHA, or for a plan each changed file's final text, never a prose delta), every prior finding, your response to each (fixed at commit X, or refuted because Y), and any objection still open. Never continue a round through `t3_thread_send` on a member's child thread.
+
+The budget is 3 rounds. Extend it to 5 only when the user asks, or when a confirmed blocker or should stays open on security, permissions, auth, data loss, or state and concurrency. Never offer a round past the budget yourself. When the budget ends without unanimous SAFE, stop and hand the open disagreement to the user, both sides in 2-3 lines each. An ended budget is not approval.
 
 ## 6. Merge
 
@@ -92,4 +96,4 @@ Merge only when all of these hold:
 
 Merge with `gh pr merge <pr> --match-head-commit <sha>` and the repo's usual method, where `<sha>` is the head SHA you put in the approving round's brief, copied from that brief rather than typed. A push that lands after the verdict then fails the merge instead of riding through on stale approval. Confirm `state` is `MERGED` afterwards, then offer `/merged` for cleanup.
 
-For a plan or decision rather than a PR, stop after step 4 or 5: the unanimous verdict is the deliverable.
+For a plan or decision rather than a PR, stop after step 4 or 5: the deliverable is the unanimous verdict, or the agreed approach with its shoulds folded in.
