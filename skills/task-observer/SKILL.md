@@ -2,7 +2,7 @@
 name: "task-observer"
 core_max_lines: 242
 version: "3.5.2"
-description: "Use when any session starts. IMPORTANT: invoke this skill before the FIRST tool call of any session and before writing or proposing a plan — any turn that will involve a tool call counts. Also use during any multi-step task, agentic workflow, or work session, in post-task feedback discussions, when the user mentions skill observations, the observation log, or skill taxonomy, or when they say \"One Skill to Rule Them All\". Not for a subagent dispatched by a session already running it: that subagent puts its findings in its report."
+description: "Use when the user asks to log a skill observation, review the observation log, run a skill review, or discuss skill taxonomy, or says \"One Skill to Rule Them All\". Not for a subagent dispatched by a session already running it: that subagent puts its findings in its report."
 license: CC-BY-4.0
 metadata:
   author: Eoghan Henn and contributors
