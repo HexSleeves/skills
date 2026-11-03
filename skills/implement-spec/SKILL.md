@@ -13,6 +13,8 @@ The goal is the entire spec implemented on a single **integration branch**, with
 
 The tickets are not a list of steps. They are a **task graph** with blocking relationships between them. This means there is always a **frontier** of tickets which are ready to be grabbed.
 
+Start every subagent with a fresh context window.
+
 Communication to and from subagents should be sparse. Communicate primarily through **context pointers**: to the spec, tickets, research notes, and previous commits. Don't duplicate information already available via pointers.
 
 **Implementer subagents** should be run in the background where possible for maximum concurrency.
@@ -25,7 +27,7 @@ Communication to and from subagents should be sparse. Communicate primarily thro
 
 3. Create the integration branch and record its base commit. Open a draft PR only when the user asked for one, after the first merge in step 5 (a branch with no commits ahead of main can't open one), marked as closing the spec and tickets. Otherwise the PR opens at step 8.
 
-4. Use **implementer subagents** to implement each ticket, each in its own worktree on its own branch. Each prompt names the integration branch and its base commit, because isolated worktrees start from the default branch. Per-ticket gates are typecheck, lint and the tests in the files the ticket touched, plus `test:pg` only when it changes SQL or stored data; the full suites run once on the integration head in step 8, because on a linear graph per-ticket full suites add up serially. Implementers that do run full local test suites run at most two at a time on one workstation (through a host lock such as `heavy` where one exists), and each commits its slice before the next starts: a harness restart kills background subagents and their uncommitted work. Each implementer subagent:
+4. Use a fresh **implementer subagent** for each ticket, each in its own worktree on its own branch. Each prompt names the integration branch and its base commit, because isolated worktrees start from the default branch. Per-ticket gates are typecheck, lint and the tests in the files the ticket touched, plus `test:pg` only when it changes SQL or stored data; the full suites run once on the integration head in step 8, because on a linear graph per-ticket full suites add up serially. Implementers that do run full local test suites run at most two at a time on one workstation (through a host lock such as `heavy` where one exists), and each commits its slice before the next starts: a harness restart kills background subagents and their uncommitted work. Each implementer subagent:
    - confirms its worktree is based on the integration branch before starting, and resets onto it if not;
    - calls the Skill tool with `tdd` to build the ticket;
    - before each commit, reads each touched package's `lint` script in package.json and runs every command in it (through `./node_modules/.bin/<tool>` in a linked worktree), checking an exit status per command; a workaround for one broken check is not the list of checks;
@@ -37,7 +39,7 @@ Communication to and from subagents should be sparse. Communicate primarily thro
 
 6. If this changes the **frontier** of available tickets, kick off more **implementer subagents** to work on the new tickets. This allows for maximum concurrency. A frontier ticket that depends on a precondition a still-running sibling changes (auth required, a signature, a shared data shape) stacks on that sibling's branch instead of the integration branch.
 
-7. Once all tickets are complete, call the Skill tool with `code-review` on the integration branch. Start it earlier, on the merged prefix, as soon as the remaining frontier is one small ticket, and review that ticket's diff in the fix round. Fix all issues raised by the code review in a single **implementer subagent**.
+7. Once all tickets are complete, call the Skill tool with `code-review` on the integration branch. Start it earlier, on the merged prefix, as soon as the remaining frontier is one small ticket, and review that ticket's diff in the fix round. Fix all issues raised by the code review in a single fresh **implementer subagent**.
 
 8. Read the repo's CI entry point (its CI workflow, `make ci` or the equivalent) and run each of its steps locally, or list the ones skipped and why. This is where the full test suites run, once, on the integration head; done means they pass. A containerised target that mounts the checkout fails from a worktree, whose `.git` file points outside the mount: run it from a `git clone --branch <integration>`, and delete the clone through the same container user. A PR that closes several tickets writes one closing keyword per ticket ("Closes #1. Closes #2."); confirm with `gh pr view --json closingIssuesReferences`. Then, if a draft PR exists, mark it ready for review; otherwise open the PR, or resolve each ticket the way the issue tracker closes work, and report the integration branch. For a product with a user-facing UI, the done report says whether visual design was done and shows one screenshot.
 

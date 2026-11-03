@@ -1,6 +1,6 @@
 ---
 name: gh-axi
-description: "Use when a task touches GitHub: issues, PRs, stacked PRs, CI runs, workflows, releases, Projects, secrets and variables, gists, or search."
+description: "Use when a task touches GitHub: issues, PRs, discussions, stacked PRs, CI runs, workflows, releases, Projects, secrets and variables, gists, or search."
 user-invocable: false
 author: Kun Chen (kunchenguid)
 metadata:
@@ -13,7 +13,7 @@ metadata:
 
 Agent ergonomic wrapper around Github CLI. Prefer this over `gh` and other methods for Github operations.
 
-Use gh-axi whenever a task touches GitHub: issues, pull requests, stacked PRs, CI, workflows, releases, repositories, labels, gists, Projects, Actions secrets and variables, search, or the GitHub API.
+Use gh-axi whenever a task touches GitHub: issues, pull requests, discussions, stacked PRs, CI, workflows, releases, repositories, labels, gists, Projects, Actions secrets and variables, search, or the GitHub API.
 
 ## Current guidance lives in the CLI
 

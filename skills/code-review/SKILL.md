@@ -11,7 +11,7 @@ Three-axis review of the diff between `HEAD` and a fixed point the user supplies
 - **Spec**: does the code faithfully implement the originating issue / spec?
 - **Failure modes**: what does a malformed, partial, slow or hostile input do at each external boundary in the diff?
 
-All three axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings.
+All three axes run as **parallel sub-agents** so they don't pollute each other's context, then this skill aggregates their findings. Start every sub-agent with a fresh context window.
 
 Run it once per branch, after the last task and before the PR opens. After an individual task or slice, keep implementing; review mid-branch only when the user asks for it.
 
