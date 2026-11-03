@@ -1,0 +1,213 @@
+#!/usr/bin/env python3
+"""Keep forked skills in step with the upstream repos they were copied from.
+
+upstreams.json pins each fork to the upstream commit it last matched. `pull`
+3-way merges upstream's changes since that pin into the fork and moves the pin.
+"""
+import argparse
+import json
+import os
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+PINS = ROOT / "upstreams.json"
+CACHE = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "skills-upstream"
+
+
+def git(repo, *args, check=True):
+    r = subprocess.run(["git", "-C", str(repo), *args], capture_output=True)
+    if check and r.returncode:
+        sys.exit(f"git {' '.join(args)} failed in {repo}: {r.stderr.decode().strip()}")
+    return r
+
+
+def load():
+    return json.loads(PINS.read_text())
+
+
+def save(pins):
+    PINS.write_text(json.dumps(dict(sorted(pins.items())), indent=2) + "\n")
+
+
+_fetched = set()
+
+
+def clone(repo):
+    path = CACHE / repo.replace("/", "_")
+    if repo not in _fetched:
+        if path.exists():
+            git(path, "fetch", "-q", "origin")
+            git(path, "remote", "set-head", "origin", "--auto")
+        else:
+            CACHE.mkdir(parents=True, exist_ok=True)
+            git(CACHE, "clone", "-q", "--filter=blob:none", f"https://github.com/{repo}.git", path.name)
+        _fetched.add(repo)
+    return path
+
+
+def head(path):
+    return git(path, "rev-parse", "origin/HEAD").stdout.decode().strip()
+
+
+def files_at(path, rev, prefix):
+    out = git(path, "ls-tree", "-r", "--name-only", rev, "--", prefix).stdout.decode()
+    return {f[len(prefix) + 1:] for f in out.splitlines()}
+
+
+def blob(path, rev, prefix, name):
+    r = git(path, "show", f"{rev}:{prefix}/{name}", check=False)
+    return r.stdout if r.returncode == 0 else None
+
+
+def pending(skill, pin):
+    path = clone(pin["repo"])
+    log = git(path, "log", "--format=%h %cs %s", f"{pin['ref']}..origin/HEAD", "--", pin["path"])
+    return path, log.stdout.decode().splitlines()
+
+
+def check(args):
+    pins = load()
+    names = args.skills or sorted(pins)
+    behind = {}
+    for skill in names:
+        _, commits = pending(skill, pins[skill])
+        if commits:
+            behind[skill] = commits
+    if args.markdown:
+        for skill, commits in behind.items():
+            pin = pins[skill]
+            print(f"### {skill} ({len(commits)} from [{pin['repo']}](https://github.com/{pin['repo']}/tree/HEAD/{pin['path']}))\n")
+            print("\n".join(f"- `{c}`" for c in commits) + "\n")
+        if behind:
+            print("Merge with `scripts/upstream pull <skill>`.")
+        return
+    for skill in names:
+        commits = behind.get(skill, [])
+        print(f"{skill}: {len(commits)} upstream commit(s)" if commits else f"{skill}: up to date")
+        for c in commits:
+            print(f"  {c}")
+
+
+def merge(ours, base, theirs):
+    with tempfile.TemporaryDirectory() as d:
+        paths = []
+        for name, data in (("ours", ours), ("base", base), ("theirs", theirs)):
+            p = Path(d) / name
+            p.write_bytes(data)
+            paths.append(str(p))
+        r = subprocess.run(
+            ["git", "merge-file", "-p", "-L", "fork", "-L", "pinned upstream", "-L", "upstream HEAD", *paths],
+            capture_output=True,
+        )
+        if r.returncode < 0 or r.returncode > 127:
+            return None, True
+        return r.stdout, r.returncode > 0
+
+
+def pull(args):
+    pins = load()
+    for skill in args.skills:
+        pin = pins[skill]
+        path, commits = pending(skill, pin)
+        if not commits:
+            print(f"{skill}: up to date")
+            continue
+        new = head(path)
+        local = ROOT / "skills" / skill
+        names = files_at(path, pin["ref"], pin["path"]) | files_at(path, new, pin["path"])
+        conflicts, changes = [], []
+        for name in sorted(names):
+            base = blob(path, pin["ref"], pin["path"], name)
+            theirs = blob(path, new, pin["path"], name)
+            target = local / name
+            ours = target.read_bytes() if target.exists() else None
+            if theirs == base or ours == theirs:
+                continue
+            if ours == base:
+                if theirs is None:
+                    target.unlink()
+                    changes.append(f"deleted {name}")
+                else:
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes(theirs)
+                    changes.append(f"took upstream {name}")
+                continue
+            if ours is None or theirs is None or base is None:
+                conflicts.append(f"{name}: one side deleted or added it, the other changed it; left as is")
+                continue
+            merged, conflicted = merge(ours, base, theirs)
+            if merged is None:
+                conflicts.append(f"{name}: could not merge (binary?); left as is")
+                continue
+            target.write_bytes(merged)
+            if conflicted:
+                conflicts.append(f"{name}: conflict markers written")
+            else:
+                changes.append(f"merged {name}")
+        if conflicts:
+            print(f"{skill}: {len(commits)} upstream commit(s) merged with conflicts, pin unchanged")
+            for c in changes + conflicts:
+                print(f"  {c}")
+            print(f"  after resolving: scripts/upstream pin {skill} {new}")
+        else:
+            pin["ref"] = new
+            save(pins)
+            print(f"{skill}: merged {len(commits)} upstream commit(s), pinned {new[:7]}")
+            for c in changes:
+                print(f"  {c}")
+
+
+def pin(args):
+    pins = load()
+    pins[args.skill]["ref"] = git(clone(pins[args.skill]["repo"]), "rev-parse", args.ref).stdout.decode().strip()
+    save(pins)
+
+
+def add(args):
+    pins = load()
+    path = clone(args.repo)
+    pins[args.skill] = {"repo": args.repo, "path": args.path.strip("/"), "ref": head(path)}
+    save(pins)
+
+
+def diff(args):
+    pins = load()
+    p = pins[args.skill]
+    path = clone(p["repo"])
+    subprocess.run(["git", "-C", str(path), "--no-pager", "diff", p["ref"], "origin/HEAD", "--", p["path"]])
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    sub = ap.add_subparsers(required=True)
+    c = sub.add_parser("check", help="list upstream commits each fork has not merged")
+    c.add_argument("skills", nargs="*")
+    c.add_argument("--markdown", action="store_true", help="print only forks that are behind, as Markdown")
+    c.set_defaults(fn=check)
+    p = sub.add_parser("pull", help="3-way merge upstream changes into forks")
+    p.add_argument("skills", nargs="+")
+    p.set_defaults(fn=pull)
+    d = sub.add_parser("diff", help="show upstream's diff since the pin")
+    d.add_argument("skill")
+    d.set_defaults(fn=diff)
+    s = sub.add_parser("pin", help="set a fork's pin, after resolving a conflicted pull")
+    s.add_argument("skill")
+    s.add_argument("ref")
+    s.set_defaults(fn=pin)
+    a = sub.add_parser("add", help="track a new fork, pinned to upstream HEAD")
+    a.add_argument("skill")
+    a.add_argument("repo", help="owner/name")
+    a.add_argument("path", help="skill directory inside the upstream repo")
+    a.set_defaults(fn=add)
+    args = ap.parse_args()
+    unknown = [s for s in getattr(args, "skills", []) + [getattr(args, "skill", None)] if s and args.fn is not add and s not in load()]
+    if unknown:
+        sys.exit(f"not in upstreams.json: {', '.join(unknown)}")
+    args.fn(args)
+
+
+if __name__ == "__main__":
+    main()

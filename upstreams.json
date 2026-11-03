@@ -1,0 +1,97 @@
+{
+  "archify": {
+    "repo": "tt-a1i/archify",
+    "path": "archify",
+    "ref": "12ff5477172230762746e6a03988dc55f830601f"
+  },
+  "blast-radius": {
+    "repo": "cursor/plugins",
+    "path": "pstack/skills/blast-radius",
+    "ref": "70b2dc8b4b85c8d5648624ca40d692c421fff32f"
+  },
+  "bro": {
+    "repo": "cursor/plugins",
+    "path": "pstack/skills/bro",
+    "ref": "99559f2f52047978602ef365589275831e76af07"
+  },
+  "code-review": {
+    "repo": "mattpocock/skills",
+    "path": "skills/engineering/code-review",
+    "ref": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d"
+  },
+  "correct": {
+    "repo": "cursor/plugins",
+    "path": "pstack/skills/correct",
+    "ref": "e5136d82418d2db3165ea1050d17577cd618cc05"
+  },
+  "create-verification-skill": {
+    "repo": "cursor/plugins",
+    "path": "pstack/skills/create-verification-skill",
+    "ref": "c49b37a2c0e7bede60a71ad7322e3f12c337a3da"
+  },
+  "diagnosing-bugs": {
+    "repo": "mattpocock/skills",
+    "path": "skills/engineering/diagnosing-bugs",
+    "ref": "f3fc5632f401156837ee3872f14fe33ccf1024ea"
+  },
+  "fix-merge-conflicts": {
+    "repo": "cursor/plugins",
+    "path": "cursor-team-kit/skills/fix-merge-conflicts",
+    "ref": "b21ab167c8d6aad6e4d91bc0de429eedd49665ed"
+  },
+  "gh-axi": {
+    "repo": "kunchenguid/gh-axi",
+    "path": "skills/gh-axi",
+    "ref": "bb8c797be7d352335be41d45537a10381aa8fd55"
+  },
+  "grilling": {
+    "repo": "mattpocock/skills",
+    "path": "skills/productivity/grilling",
+    "ref": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d"
+  },
+  "handoff": {
+    "repo": "mattpocock/skills",
+    "path": "skills/productivity/handoff",
+    "ref": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d"
+  },
+  "implement-spec": {
+    "repo": "mattpocock/skills",
+    "path": "skills/engineering/implement-spec",
+    "ref": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d"
+  },
+  "leaving-pr-comments": {
+    "repo": "t3dotgg/tstack",
+    "path": "skills/leaving-pr-comments",
+    "ref": "6efae364201abc9d9f07443e9caa461f42e51090"
+  },
+  "maintain-verification-skill": {
+    "repo": "cursor/plugins",
+    "path": "pstack/skills/maintain-verification-skill",
+    "ref": "e42d29fd5c8fe4f13e3bee7f53b35f410f65aee8"
+  },
+  "no-ai-slop": {
+    "repo": "petergyang/no-ai-slop",
+    "path": "skills/no-ai-slop",
+    "ref": "000650b156983f5159695b441477f4e63b25dc85"
+  },
+  "no-comments": {
+    "repo": "cursor/plugins",
+    "path": "pstack/skills/no-comments",
+    "ref": "b047069f4f3a73e87dd1f11f7913386d25876b91"
+  },
+  "prototype": {
+    "repo": "mattpocock/skills",
+    "path": "skills/engineering/prototype",
+    "ref": "321658273cb1d20b76026717d027d505790106d4"
+  },
+  "tdd": {
+    "repo": "mattpocock/skills",
+    "path": "skills/engineering/tdd",
+    "ref": "3f599139104dfceabc7754eeb91319802f85e042"
+  },
+  "why": {
+    "repo": "cursor/plugins",
+    "path": "pstack/skills/why",
+    "ref": "08bd59b37834550f5e8fa0bb5e8852204a7534cf"
+  }
+}

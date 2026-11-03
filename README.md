@@ -100,6 +100,10 @@ Instructions for the agent to follow when this skill is activated.
 4. Update the catalog above.
 5. Push to GitHub — `npx skills add HexSleeves/skills` will auto-discover it.
 
+## Keeping forks current
+
+Forked skills are pinned to an upstream commit in `upstreams.json`. Every Monday a workflow updates one issue, "Upstream skill changes", with the upstream commits not merged yet. `scripts/upstream pull <skill>` 3-way merges them into the fork; see `AGENTS.md` for the commands.
+
 ## License
 
 MIT, except forked skills, which keep their upstream license: see the LICENSE file in the skill directory, or the upstream repo named in the catalog.
