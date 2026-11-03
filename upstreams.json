@@ -2,12 +2,12 @@
   "archify": {
     "repo": "tt-a1i/archify",
     "path": "archify",
-    "ref": "12ff5477172230762746e6a03988dc55f830601f"
+    "ref": "a4065941f12be7967436261d9934784e381d423c"
   },
   "blast-radius": {
     "repo": "cursor/plugins",
     "path": "pstack/skills/blast-radius",
-    "ref": "70b2dc8b4b85c8d5648624ca40d692c421fff32f"
+    "ref": "6ea74587e384e1a8035c09ae33a46fe3f881eb9b"
   },
   "bro": {
     "repo": "cursor/plugins",
@@ -67,7 +67,7 @@
   "maintain-verification-skill": {
     "repo": "cursor/plugins",
     "path": "pstack/skills/maintain-verification-skill",
-    "ref": "e42d29fd5c8fe4f13e3bee7f53b35f410f65aee8"
+    "ref": "6ea74587e384e1a8035c09ae33a46fe3f881eb9b"
   },
   "no-ai-slop": {
     "repo": "petergyang/no-ai-slop",
@@ -77,7 +77,7 @@
   "no-comments": {
     "repo": "cursor/plugins",
     "path": "pstack/skills/no-comments",
-    "ref": "b047069f4f3a73e87dd1f11f7913386d25876b91"
+    "ref": "6ea74587e384e1a8035c09ae33a46fe3f881eb9b"
   },
   "prototype": {
     "repo": "mattpocock/skills",
@@ -92,6 +92,6 @@
   "why": {
     "repo": "cursor/plugins",
     "path": "pstack/skills/why",
-    "ref": "08bd59b37834550f5e8fa0bb5e8852204a7534cf"
+    "ref": "6ea74587e384e1a8035c09ae33a46fe3f881eb9b"
   }
 }

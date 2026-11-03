@@ -62,7 +62,7 @@ npx skills add HexSleeves/skills -g
 
 ### Tooling & docs
 
-- **archify**: Validated architecture, workflow, sequence, data-flow, lifecycle, ERD, class, tree, timeline, and waterfall diagrams, plus one-page explainers, as standalone HTML. Fork of tt-a1i/archify (MIT).
+- **archify**: Validated architecture, workflow, sequence, data-flow, lifecycle, ERD, class, tree, timeline, and waterfall diagrams, plus one-page explainers, as standalone HTML. Fork of tt-a1i/archify (Apache-2.0).
 - **gh-axi**: Operate GitHub through the gh-axi CLI. Fork of kunchenguid/gh-axi (MIT).
 
 ### Meta & skill authoring

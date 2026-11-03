@@ -1,7 +1,7 @@
 ---
 name: archify
 description: "Use when the user asks for an architecture, workflow, sequence, data-flow, lifecycle/state, ERD, class, tree, timeline, or waterfall diagram, or to visualize systems, infrastructure, API calls, pipelines, data lineage, schemas, histories, or timings, or to convert or beautify pasted Mermaid. Also use for everyday subjects with steps, parts, relationships, or states, and when the user asks for a one-page explainer or a page that answers a question (做成一页, 用页面讲), or their rules opt in with an [archify explainer: ...] line. Not for dashboards."
-license: MIT
+license: Apache-2.0
 metadata:
   upstream: tt-a1i/archify
   version: "3.2"
