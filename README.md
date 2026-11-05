@@ -36,6 +36,7 @@ npx skills add HexSleeves/skills -g
 
 - **grilling**: Stress-test a plan before building via relentless questioning, one design-tree frontier question at a time. Rebuilt from mattpocock/skills (MIT).
 - **improve** — Read-only senior-advisor survey of a codebase that produces prioritized, self-contained implementation plans for other agents to execute.
+- **software-factory**: Shared language for designing a system of agents that turns tickets, PRs and schedules into merged code. Fork of mattpocock/skills (MIT).
 
 ### Execution & review
 

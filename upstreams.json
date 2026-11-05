@@ -34,6 +34,11 @@
     "path": "pstack/skills/no-comments",
     "ref": "6ea74587e384e1a8035c09ae33a46fe3f881eb9b"
   },
+  "software-factory": {
+    "repo": "mattpocock/skills",
+    "path": "skills/in-progress/software-factory",
+    "ref": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d"
+  },
   "tdd": {
     "repo": "mattpocock/skills",
     "path": "skills/engineering/tdd",
