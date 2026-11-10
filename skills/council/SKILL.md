@@ -29,7 +29,7 @@ Ids drift: resolve each seat against the live catalog, and if one is missing or 
 
 ## 3. Convene
 
-Snapshot before dispatch: the checkout (`git rev-parse HEAD`, `git status --porcelain`) and, for a PR, `gh pr view <pr> --json headRefOid,reviews,comments`. Members are read-only by instruction only (a narrower `runtimeMode` is not a read-only switch), so the snapshot is how you catch one that wrote anyway, locally, by a push to the PR, or in a PR review or comment.
+Snapshot before dispatch: the checkout (`git rev-parse HEAD`, `git status --porcelain`) and, for a PR, `gh pr view <pr> --json headRefOid,reviews,comments` plus its label events (`gh api --hostname <host> --paginate repos/<owner>/<repo>/issues/<pr>/events --jq '.[] | select(.event == "labeled" or .event == "unlabeled") | {event, actor: .actor.login, label: .label.name}'`, with `<host>`, `<owner>` and `<repo>` from the PR `url` and `<pr>` as its `number`). Members are read-only by instruction only (a narrower `runtimeMode` is not a read-only switch), so the snapshot is how you catch one that wrote anyway, locally, by a push to the PR, or in a PR review, comment, or label.
 
 Dispatch all three in one turn with `delegate_task`, `mode: "async"`, `role: "review"`, title `Council: <PR #N | subject> (<Seat>)`, and `clientRequestId: council-<subject>-r<round>-<seat>`. Give every member the same brief:
 
@@ -63,7 +63,7 @@ Then tell the user in a few lines what the council is reviewing, who sits on it,
 
 ## 4. Weigh the verdicts
 
-When all three have reported, re-run the snapshots. A changed HEAD or status that you did not make, or a new review or comment whose `author.login` matches yours (`gh api user --hostname <host> --jq .login`, host from the PR `url`), means a member wrote: stop and show the user the difference before anything else. A new review or comment from another login is bots or reviewers posting to a live PR: note it in the report and continue.
+When all three have reported, re-run the snapshots. A changed HEAD or status that you did not make, or a new review, comment, or label event whose author or actor login matches yours (`gh api user --hostname <host> --jq .login`), means a member wrote: stop and show the user the difference before anything else. A new one from another login comes from bots or reviewers working on a live PR: note it in the report and continue.
 
 A report with no VERDICT line, or a member that errors out, is not a vote: re-seat that member as a new `delegate_task` with the same brief and a new `clientRequestId`, in the same round, and say so in the report. If the re-seat fails too, treat the seat as missing (step 2).
 
