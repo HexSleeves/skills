@@ -44,7 +44,7 @@ npx skills add HexSleeves/skills -g
 - **council**: Three reviewers from three model families (Opus, Muse, GPT Sol via Cursor) must each call a PR safe on its current head before it merges; the coordinator owns fixes and reconvenes the council within a 3-round budget, where nits never force a new round.
 - **diagnosing-bugs**: Diagnosis loop for hard bugs and performance regressions, built on a tight red-capable feedback loop before any hypothesis. Fork of mattpocock/skills (MIT).
 - **implement-spec**: Implements a `to-spec` spec and its `to-tickets` task graph on one integration branch with parallel implementer subagents, bounded by the host and checked against the repo's CI target. Fork of mattpocock/skills (MIT).
-- **leaving-pr-comments**: Attribution callout and style for every GitHub comment an agent posts on the user's behalf. From t3dotgg/tstack (MIT).
+- **leaving-pr-comments**: Style and safety checks for every GitHub comment an agent posts on the user's behalf. From t3dotgg/tstack (MIT).
 - **merged**: After a PR merges (by hand or when its merge watcher exits), removes the branches and worktrees that are provably finished, pulls the default branch, and readies the repo for the next piece of work.
 - **no-comments**: Review scoped code comments, fix accepted findings, and offer enforceable encodings for claimed constraints.
 - **tdd**: Red-green loop at agreed seams, with red checked by test count, mutation for pinned behaviour, and no code without a runner. Fork of mattpocock/skills (MIT).
