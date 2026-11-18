@@ -29,6 +29,8 @@ Ids drift: resolve each seat against the live catalog, and if one is missing or 
 
 ## 3. Convene
 
+Fix the issues you already know about before you convene, so members spend their review on what you missed.
+
 Snapshot before dispatch: the checkout (`git rev-parse HEAD`, `git status --porcelain`) and, for a PR, `gh pr view <pr> --json headRefOid,reviews,comments` plus its label events (`gh api --hostname <host> --paginate repos/<owner>/<repo>/issues/<pr>/events --jq '.[] | select(.event == "labeled" or .event == "unlabeled") | {event, actor: .actor.login, label: .label.name}'`, with `<host>`, `<owner>` and `<repo>` from the PR `url` and `<pr>` as its `number`). Members are read-only by instruction only (a narrower `runtimeMode` is not a read-only switch), so the snapshot is how you catch one that wrote anyway, locally, by a push to the PR, or in a PR review, comment, or label.
 
 Dispatch all three in one turn with `delegate_task`, `mode: "async"`, `role: "review"`, title `Council: <PR #N | subject> (<Seat>)`, and `clientRequestId: council-<subject>-r<round>-<seat>`. Give every member the same brief:

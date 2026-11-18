@@ -9,6 +9,16 @@
     "path": "skills/engineering/diagnosing-bugs",
     "ref": "f3fc5632f401156837ee3872f14fe33ccf1024ea"
   },
+  "file-pr": {
+    "repo": "t3dotgg/tstack",
+    "path": "skills/file-pr",
+    "ref": "11e37a74d0a6868c121cd0910ab2b3bd9873b92a"
+  },
+  "full-stop": {
+    "repo": "t3dotgg/tstack",
+    "path": "skills/full-stop",
+    "ref": "11e37a74d0a6868c121cd0910ab2b3bd9873b92a"
+  },
   "grilling": {
     "repo": "mattpocock/skills",
     "path": "skills/productivity/grilling",
@@ -24,6 +34,11 @@
     "path": "skills/leaving-pr-comments",
     "ref": "6efae364201abc9d9f07443e9caa461f42e51090"
   },
+  "modernize": {
+    "repo": "t3dotgg/tstack",
+    "path": "skills/modernize",
+    "ref": "11e37a74d0a6868c121cd0910ab2b3bd9873b92a"
+  },
   "no-ai-slop": {
     "repo": "petergyang/no-ai-slop",
     "path": "skills/no-ai-slop",
@@ -38,6 +53,16 @@
     "repo": "mattpocock/skills",
     "path": "skills/in-progress/software-factory",
     "ref": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d"
+  },
+  "sol-loop": {
+    "repo": "t3dotgg/tstack",
+    "path": "skills/sol-loop",
+    "ref": "11e37a74d0a6868c121cd0910ab2b3bd9873b92a"
+  },
+  "takeover": {
+    "repo": "t3dotgg/tstack",
+    "path": "skills/takeover",
+    "ref": "11e37a74d0a6868c121cd0910ab2b3bd9873b92a"
   },
   "tdd": {
     "repo": "mattpocock/skills",

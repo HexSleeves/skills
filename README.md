@@ -43,10 +43,15 @@ npx skills add HexSleeves/skills -g
 - **code-review**: Review a branch against the repo's standards and the originating spec, once per branch before the PR. Fork of mattpocock/skills (MIT).
 - **council**: Three reviewers from three model families (Opus, Muse, GPT Sol via Cursor) must each call a PR safe on its current head before it merges; the coordinator owns fixes and reconvenes the council within a 3-round budget, where nits never force a new round.
 - **diagnosing-bugs**: Diagnosis loop for hard bugs and performance regressions, built on a tight red-capable feedback loop before any hypothesis. Fork of mattpocock/skills (MIT).
+- **file-pr**: Files a PR whose title follows the repo and whose body leads with the problem, then Summary, Evidence and Merge Danger. From t3dotgg/tstack (MIT), body template from mattpocock/skills `pr`.
+- **full-stop**: `full-send` that stops with the PR ready for the user to merge. From t3dotgg/tstack (MIT).
 - **implement-spec**: Implements a `to-spec` spec and its `to-tickets` task graph on one integration branch with parallel implementer subagents, bounded by the host and checked against the repo's CI target. Fork of mattpocock/skills (MIT).
 - **leaving-pr-comments**: Style and safety checks for every GitHub comment an agent posts on the user's behalf. From t3dotgg/tstack (MIT).
 - **merged**: After a PR merges (by hand or when its merge watcher exits), removes the branches and worktrees that are provably finished, pulls the default branch, and readies the repo for the next piece of work.
+- **modernize**: Rebases an aging PR and decides whether it should still exist (MODERNIZE, REWORK or CLOSE). From t3dotgg/tstack (MIT).
 - **no-comments**: Review scoped code comments, fix accepted findings, and offer enforceable encodings for claimed constraints.
+- **sol-loop**: Reviews a change with GPT Sol (T3 `delegate_task`, or the Codex CLI) in a loop until both agents agree. From t3dotgg/tstack (MIT).
+- **takeover**: Finishes someone else's PR, branch or agent thread and keeps their credit. From t3dotgg/tstack (MIT).
 - **tdd**: Red-green loop at agreed seams, with red checked by test count, mutation for pinned behaviour, and no code without a runner. Fork of mattpocock/skills (MIT).
 
 ### Writing
