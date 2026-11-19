@@ -35,4 +35,4 @@ scripts/upstream pin <skill> <sha>       # after resolving a conflicted pull
 scripts/upstream add <skill> <owner/repo> <path>   # track a new fork from upstream HEAD
 ```
 
-When resolving a conflicted pull, the fork's wording wins: descriptions follow the contract above, and the fork's rules are deliberate. Take upstream's new behaviour or facts, rewritten in the fork's voice, then `pin` to the SHA that `pull` printed. task-observer and council are not tracked: they no longer resemble their sources.
+When resolving a conflicted pull, the fork's wording wins: descriptions follow the contract above, and the fork's rules are deliberate. Take upstream's new behaviour or facts, rewritten in the fork's voice, then `pin` to the SHA that `pull` printed. task-observer is not tracked: it no longer resembles its source.

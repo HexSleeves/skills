@@ -4,6 +4,11 @@
     "path": "skills/engineering/code-review",
     "ref": "4ae2317ddb22b046e26455e4f9c9b3aaaf62212d"
   },
+  "council": {
+    "repo": "t3dotgg/tstack",
+    "path": "skills/council",
+    "ref": "11e37a74d0a6868c121cd0910ab2b3bd9873b92a"
+  },
   "diagnosing-bugs": {
     "repo": "mattpocock/skills",
     "path": "skills/engineering/diagnosing-bugs",
@@ -32,7 +37,7 @@
   "leaving-pr-comments": {
     "repo": "t3dotgg/tstack",
     "path": "skills/leaving-pr-comments",
-    "ref": "6efae364201abc9d9f07443e9caa461f42e51090"
+    "ref": "11e37a74d0a6868c121cd0910ab2b3bd9873b92a"
   },
   "modernize": {
     "repo": "t3dotgg/tstack",
